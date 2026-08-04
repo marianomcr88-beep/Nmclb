@@ -1,0 +1,3348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0C1A24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>NMCLB · Al Toque</title>
+<meta name="app-version" content="8">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#0C1A24;--bg-1:#1A2B3C;--bg-2:#22384B;
+  --panel:rgba(255,255,255,0.06);--panel-strong:rgba(255,255,255,0.10);
+  --border:rgba(255,255,255,0.12);--border-strong:rgba(255,255,255,0.22);
+  --text:#FFFFFF;--text-dim:rgba(255,255,255,0.62);--text-faint:rgba(255,255,255,0.38);
+  --accent:#FF6B35;--accent2:#FF3D57;--accent-soft:#FFB265;--green:#7FC97A;--red:#FF5A6E;
+  --radius:14px;
+  --grad:linear-gradient(135deg,#FFB265 0%,#FF6B35 55%,#FF3D57 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:'M PLUS Rounded 1c',system-ui,sans-serif;background:var(--bg-0);color:var(--text);overflow:hidden;position:fixed;width:100%;}
+#app{max-width:440px;margin:0 auto;height:100vh;height:100dvh;background:linear-gradient(180deg,#1A2B3C 0%,#0C1A24 60%);display:flex;flex-direction:column;position:relative;overflow:hidden;}
+
+/* SCREENS */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;padding:24px 22px calc(24px + env(safe-area-inset-bottom));opacity:0;pointer-events:none;transform:translateY(16px);transition:opacity .28s ease,transform .28s ease;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.screen > *{flex-shrink:0;}
+.total-card{background:var(--grad);border-radius:22px;padding:20px;margin-bottom:12px;box-shadow:0 12px 36px rgba(255,107,53,0.30);position:relative;overflow:hidden;min-height:150px;display:block;}
+.total-card-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.9;margin-bottom:8px;color:#fff;}
+.total-card-amount{font-size:36px;font-weight:800;line-height:1.2;letter-spacing:-0.02em;color:#fff;display:block;min-height:44px;word-break:break-word;}
+.total-card-rate{font-size:11px;opacity:.8;margin-top:6px;color:#fff;}
+.screen.active{opacity:1;pointer-events:auto;transform:translateY(0);}
+
+/* BRANDMARK */
+.brandmark{display:flex;align-items:center;gap:8px;}
+.brandmark .dot{width:24px;height:24px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:var(--bg-0);font-weight:800;font-size:13px;}
+.brandmark .txt{font-size:12px;color:var(--text-dim);font-weight:500;letter-spacing:.03em;}
+
+/* WALLET LOGO */
+.wallet-logo{width:96px;height:96px;border-radius:28px;background:var(--grad);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;box-shadow:0 16px 48px rgba(255,107,53,0.38);}
+.wallet-logo svg{width:52px;height:52px;}
+
+/* TYPOGRAPHY */
+h1{font-size:28px;font-weight:800;line-height:1.15;letter-spacing:-.01em;}
+h2{font-size:20px;font-weight:700;}
+.sub{color:var(--text-dim);font-size:14px;line-height:1.55;font-weight:400;}
+.label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;}
+
+/* INPUTS */
+.field{margin-bottom:14px;}
+.input{width:100%;height:52px;border-radius:12px;background:var(--panel);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:16px;font-weight:500;padding:0 14px;outline:none;transition:border .2s;}
+.input:focus{border-color:var(--accent);}
+.select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-opacity='.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:40px;cursor:pointer;}
+.input::placeholder{color:var(--text-faint);font-weight:400;}
+.input-icon-wrap{position:relative;}
+.input-icon-wrap .input{padding-right:46px;}
+.input-icon-wrap .iico{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:20px;cursor:pointer;color:var(--text-faint);}
+
+/* BUTTONS */
+.btn{width:100%;height:54px;border-radius:var(--radius);border:none;cursor:pointer;font-family:inherit;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .12s,filter .2s;}
+.btn:active{transform:scale(.975);}
+.btn-accent{background:var(--grad);color:#fff;box-shadow:0 8px 28px rgba(255,61,87,.30);}
+.btn-ghost{background:var(--panel);color:var(--text);border:1px solid var(--border-strong);}
+.btn-green{background:var(--green);color:#0C1A24;}
+.btn-bio{background:var(--panel-strong);border:1px solid var(--border-strong);color:var(--text);height:64px;border-radius:20px;font-size:15px;}
+.btn-sm{height:46px;font-size:14px;}
+.btn:disabled{opacity:.38;cursor:default;}
+.link-btn{background:none;border:none;color:var(--accent-soft);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;padding:10px 0;text-align:center;width:100%;}
+
+/* CARDS / PANELS */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;}
+.stack{display:flex;flex-direction:column;gap:12px;}
+.mt-auto{margin-top:auto;padding-top:16px;}
+.divider{display:flex;align-items:center;gap:12px;margin:16px 0;}
+.divider span{font-size:12px;color:var(--text-faint);}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ERROR */
+.err-msg{font-size:12px;color:var(--red);margin-top:-8px;margin-bottom:10px;font-weight:500;display:none;}
+.err-msg.show{display:block;}
+
+/* BIOMETRIC PULSE */
+@keyframes bioPulse{0%,100%{box-shadow:0 0 0 0 rgba(127,201,122,0.5)}50%{box-shadow:0 0 0 14px rgba(127,201,122,0)}}
+.bio-pulse{animation:bioPulse 1.8s infinite;}
+
+/* STEPS INDICATOR */
+.steps{display:flex;gap:6px;justify-content:center;margin-bottom:20px;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+.step-dot.active{background:var(--accent);width:22px;border-radius:4px;}
+
+/* TOAST */
+.bolsillo-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:12px 10px;text-align:center;cursor:pointer;transition:transform .12s,background .15s;}
+.bolsillo-card:active{transform:scale(.97);background:var(--panel-strong);}
+.b-icon{font-size:20px;margin-bottom:4px;}
+.b-label{font-size:10px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+.b-val{font-family:'M PLUS Rounded 1c',sans-serif;font-size:14px;font-weight:800;}
+.quick-action{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;color:var(--text);transition:transform .12s,background .15s;}
+.quick-action:active{transform:scale(.97);background:var(--panel-strong);}
+.empty-state{text-align:center;padding:20px;color:var(--text-faint);font-size:13px;border:1px dashed var(--border);border-radius:12px;}
+.home-balance{width:100%;display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:15px 16px;cursor:pointer;font-family:inherit;color:var(--text);transition:transform .12s,background .15s;}
+.home-balance:active{transform:scale(.98);background:var(--panel-strong);}
+.action-tile{border:none;border-radius:18px;padding:18px 14px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:3px;transition:transform .12s,filter .2s;position:relative;overflow:hidden;}
+.action-tile:active{transform:scale(.97);}
+.action-tile.income{background:linear-gradient(140deg,#8FE08C 0%,#5DB863 100%);box-shadow:0 8px 24px rgba(127,201,122,.22);}
+.action-tile.expense{background:var(--grad);box-shadow:0 8px 24px rgba(255,107,53,.24);}
+.at-icon{width:34px;height:34px;border-radius:11px;background:rgba(0,0,0,0.16);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:#0C1A24;margin-bottom:7px;}
+.at-title{font-size:16px;font-weight:800;color:#0C1A24;}
+.at-sub{font-size:11px;font-weight:600;color:rgba(12,26,36,.62);}
+.nav-tile{width:100%;display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:13px 15px;cursor:pointer;font-family:inherit;color:var(--text);transition:transform .12s,background .15s;}
+.nav-tile:active{transform:scale(.98);background:var(--panel-strong);}
+.nt-icon{width:40px;height:40px;border-radius:12px;background:var(--panel-strong);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.nt-title{font-size:14px;font-weight:700;}
+.nt-sub{font-size:11px;color:var(--text-dim);margin-top:1px;}
+.cats{display:flex;flex-wrap:wrap;gap:6px;}
+.cbt{border:1px solid var(--border);background:var(--panel-strong);color:var(--text-dim);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;}
+.cbt.sel{background:var(--grad);border-color:transparent;color:#fff;}
+.lwrap{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.erow{display:flex;align-items:center;gap:10px;padding:13px 14px;border-bottom:1px solid var(--border);}
+.erow:last-child{border-bottom:none;}
+.eicon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.eleft{flex:1;min-width:0;}
+.edesc{font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.emeta{font-size:11px;color:var(--text-dim);margin-top:2px;display:flex;align-items:center;gap:6px;}
+.esrc-tag{background:var(--panel-strong);border-radius:8px;padding:1px 7px;font-size:10px;font-weight:600;}
+.cat-ingreso{background:rgba(127,201,122,.15);color:#7fc97a}
+.eamt.pos{color:var(--green)!important;}
+.eamt{font-family:'M PLUS Rounded 1c',sans-serif;font-weight:800;color:var(--red);font-size:14px;flex-shrink:0;}
+.edel{background:none;border:none;color:var(--text-faint);font-size:16px;cursor:pointer;padding:4px;}
+.cat-supermercado{background:rgba(93,214,168,.15);color:#5dd6a8}
+.cat-servicios{background:rgba(247,162,106,.15);color:#f7a26a}
+.cat-fijo{background:rgba(124,168,247,.15);color:#7ca8f7}
+.cat-transporte{background:rgba(160,140,248,.15);color:#a08cf8}
+.cat-salud{background:rgba(247,106,124,.15);color:#f76a7c}
+.cat-ocio{background:rgba(255,220,100,.15);color:#f0c840}
+.cat-ropa{background:rgba(180,130,255,.15);color:#c490f8}
+.cat-no-necesario{background:rgba(200,200,230,.12);color:#aaaacc}
+.cat-compartido{background:rgba(127,201,122,.15);color:#7fc97a}
+.cat-otro{background:rgba(120,120,160,.12);color:#8888aa}
+.total-toggle{background:rgba(0,0,0,0.18);border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.55);border-radius:20px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+.total-toggle.on{background:rgba(255,255,255,0.22);color:#fff;border-color:rgba(255,255,255,0.5);}
+.shared-card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:12px;cursor:pointer;transition:transform .12s,background .15s;}
+.shared-card:active{transform:scale(.98);background:var(--panel-strong);}
+.shared-avatar{width:42px;height:42px;border-radius:13px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;}
+.shared-balance{background:rgba(0,0,0,0.18);border:1px solid var(--border);border-radius:13px;padding:12px 14px;text-align:center;}
+.shared-mini{background:var(--surface2, rgba(255,255,255,0.04));border-radius:11px;padding:9px 11px;text-align:center;}
+.sm-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+.sm-val{font-size:14px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;}
+.pocket-summary{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:9px;cursor:pointer;transition:transform .12s,background .15s;}
+.pocket-summary:active{transform:scale(.98);background:var(--panel-strong);}
+.ps-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.ps-info{flex:1;min-width:0;}
+.ps-name{font-size:15px;font-weight:700;}
+.ps-sub{font-size:11px;color:var(--text-dim);margin-top:1px;}
+.ps-val{font-family:'M PLUS Rounded 1c',sans-serif;font-size:16px;font-weight:800;color:var(--green);}
+.ps-arr{font-size:18px;color:var(--text-faint);}
+.voice-cta{width:100%;display:flex;align-items:center;gap:12px;background:var(--panel-strong);border:1px solid var(--border-strong);border-radius:14px;padding:13px 14px;cursor:pointer;font-family:inherit;color:var(--text);margin-bottom:16px;transition:all .2s;}
+.voice-cta:active{transform:scale(.98);}
+.voice-cta.listening{border-color:var(--red);background:rgba(255,61,87,0.12);animation:micPulse 1.2s infinite;}
+.mov-summary{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-top:4px;}
+optgroup{background:var(--bg-1);color:var(--text-dim);font-size:12px;}
+option{background:var(--bg-1);color:var(--text);padding:6px;}
+.mic-btn{width:52px;height:52px;border-radius:14px;background:var(--panel-strong);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;flex-shrink:0;transition:all .2s;}
+.mic-btn.listening{background:rgba(255,61,87,0.2);border-color:var(--red);animation:micPulse 1s infinite;}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,90,110,0.5)}50%{box-shadow:0 0 0 10px rgba(255,90,110,0)}}
+.seg-mini{display:flex;gap:6px;margin-bottom:14px;}
+.seg-mini button{flex:1;height:38px;border-radius:10px;background:var(--panel);border:1px solid var(--border);color:var(--text-dim);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+.seg-mini button.on{background:var(--grad);color:#fff;border-color:transparent;font-weight:700;}
+.fx-rate-tag{font-size:11px;color:var(--text-faint);background:var(--panel-strong);border-radius:8px;padding:4px 9px;display:inline-block;margin-bottom:8px;}
+.bolsillo-full{background:var(--panel);border:1px solid var(--border);border-radius:18px;margin-bottom:10px;overflow:hidden;}
+.bp-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;transition:background .15s;}
+.bp-header:active{background:var(--panel-strong);}
+.bp-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.bp-info{flex:1;}
+.bp-name{font-size:15px;font-weight:700;}
+.bp-sub{font-size:11px;color:var(--text-dim);margin-top:1px;}
+.bp-val{font-family:'M PLUS Rounded 1c',sans-serif;font-size:17px;font-weight:800;color:var(--green);}
+.bp-arr{font-size:11px;color:var(--text-faint);margin-top:2px;text-align:right;}
+.bp-body{display:none;border-top:1px solid var(--border);}
+.bp-body.open{display:block;}
+.bp-edit{padding:14px 16px;}
+.acc-card{background:var(--panel-strong);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+.acc-card-header{display:flex;align-items:center;gap:10px;margin-bottom:0;}
+.acc-card-icon{font-size:18px;flex-shrink:0;}
+.acc-card-name{flex:1;font-size:14px;font-weight:700;}
+.acc-card-total{font-family:'M PLUS Rounded 1c',sans-serif;font-size:15px;font-weight:800;color:var(--accent-soft);}
+.acc-card-actions{display:flex;gap:6px;margin-top:10px;border-top:1px solid var(--border);padding-top:10px;}
+.acc-action-btn{flex:1;background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;text-align:center;}
+.inv-breakdown{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;}
+.inv-item{background:rgba(0,0,0,0.2);border-radius:8px;padding:7px 10px;}
+.inv-item-label{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);margin-bottom:2px;}
+.inv-item-val{font-size:13px;font-weight:800;}
+.inv-item-val.green{color:var(--green);}
+.inv-item-val.orange{color:var(--accent-soft);}
+.mov-mini{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.mov-mini:last-child{border-bottom:none;}
+.mov-mini-desc{color:var(--text-dim);}
+.mov-mini-amt{font-weight:700;}
+.mov-mini-amt.neg{color:var(--red);}
+.mov-mini-amt.pos{color:var(--green);}
+.mov-row{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border);}
+.mov-row:last-child{border-bottom:none;}
+.mov-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.mov-left{flex:1;min-width:0;}
+.mov-desc{font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mov-cat{font-size:11px;color:var(--text-dim);margin-top:1px;}
+.mov-amt{font-family:'M PLUS Rounded 1c',sans-serif;font-size:14px;font-weight:800;}
+.mov-amt.neg{color:var(--red);}
+.mov-amt.pos{color:var(--green);}
+.hidden-val::after{content:"•••••";letter-spacing:2px;}
+.hidden-val{color:var(--text-faint)!important;}
+#toast{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(12px);background:var(--bg-2);border:1px solid var(--border-strong);color:var(--text);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:all .28s ease;z-index:99;white-space:nowrap;max-width:90%;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA 1A — BIENVENIDA / ELEGIR ACCIÓN
+  ══════════════════════════════════════════ -->
+  <section class="screen active" id="s-welcome">
+    <div class="brandmark" style="margin-bottom:auto;">
+      <div class="dot">✓</div>
+      <div class="txt">al toque · soluciones de bolsillo</div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:32px;">
+      <!-- WALLET ICON SVG -->
+      <div class="wallet-logo">
+        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Billetera cuerpo -->
+          <rect x="4" y="16" width="40" height="28" rx="5" stroke="white" stroke-width="2.8" fill="none"/>
+          <!-- Tapa cierre -->
+          <rect x="4" y="16" width="40" height="9" rx="4" fill="white" fill-opacity="0.18"/>
+          <!-- Botón cierre -->
+          <circle cx="38" cy="38" r="3" stroke="white" stroke-width="2.4" fill="none"/>
+          <!-- Billetes saliendo -->
+          <rect x="13" y="5" width="18" height="13" rx="3" stroke="white" stroke-width="2.4" fill="none" transform="rotate(-8 13 5)"/>
+          <rect x="22" y="3" width="16" height="12" rx="3" stroke="white" stroke-width="2.4" fill="none" transform="rotate(6 22 3)"/>
+          <!-- Línea tarjeta -->
+          <line x1="10" y1="31" x2="28" y2="31" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+      </div>
+      <h1 style="margin-bottom:8px;">NMCLB</h1>
+      <p class="sub" style="max-width:260px;margin:0 auto;">No me cierran los balances.<br>Tus finanzas, en orden.</p>
+    </div>
+
+    <div class="stack">
+      <button class="btn btn-accent" onclick="go('s-register')">Crear mi cuenta</button>
+      <button class="btn btn-ghost" onclick="go('s-login')">Ya tengo cuenta</button>
+      <button class="btn btn-ghost btn-sm" id="install-btn" onclick="installPWA()" style="display:none;gap:8px;border-color:var(--green);color:var(--green);">
+        📲 Instalar en mi celular
+      </button>
+    </div>
+
+    <p style="text-align:center;font-size:11px;color:var(--text-faint);margin-top:20px;line-height:1.6;">
+      Tus datos se almacenan de forma encriptada<br>y nunca son compartidos con terceros.
+    </p>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA 1B — REGISTRO
+  ══════════════════════════════════════════ -->
+  <section class="screen" id="s-register">
+    <div class="brandmark" style="margin-bottom:28px;">
+      <div class="dot">✓</div>
+      <div class="txt">al toque · soluciones de bolsillo</div>
+    </div>
+
+    <div class="steps">
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+
+    <h2 style="margin-bottom:4px;">Creá tu cuenta</h2>
+    <p class="sub" style="margin-bottom:24px;">Paso 1 de 3 — Datos de acceso</p>
+
+    <div class="field">
+      <label class="label">Tu nombre</label>
+      <input class="input" id="r-name" type="text" placeholder="Ej: Mariano" autocomplete="name">
+    </div>
+    <div class="field">
+      <label class="label">Email</label>
+      <input class="input" id="r-email" type="email" placeholder="tucorreo@email.com" autocomplete="email" inputmode="email">
+    </div>
+    <div class="field">
+      <label class="label">Contraseña</label>
+      <div class="input-icon-wrap">
+        <input class="input" id="r-pass" type="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+        <span class="iico" onclick="togglePass('r-pass',this)">👁</span>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Repetir contraseña</label>
+      <div class="input-icon-wrap">
+        <input class="input" id="r-pass2" type="password" placeholder="Repetí tu contraseña" autocomplete="new-password">
+        <span class="iico" onclick="togglePass('r-pass2',this)">👁</span>
+      </div>
+    </div>
+    <div class="err-msg" id="r-err">Las contraseñas no coinciden.</div>
+
+    <div class="mt-auto stack">
+      <button class="btn btn-accent" onclick="registerStep1()">Continuar →</button>
+      <button class="link-btn" onclick="go('s-welcome')">‹ Volver</button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA 1C — ACTIVAR BIOMETRÍA
+  ══════════════════════════════════════════ -->
+  <section class="screen" id="s-biometric">
+    <div class="brandmark" style="margin-bottom:28px;">
+      <div class="dot">✓</div>
+      <div class="txt">al toque · soluciones de bolsillo</div>
+    </div>
+
+    <div class="steps">
+      <div class="step-dot"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+    </div>
+
+    <h2 style="margin-bottom:4px;">Activá tu huella</h2>
+    <p class="sub" style="margin-bottom:32px;">Paso 2 de 3 — Para entrar sin contraseña cada vez que abrís la app.</p>
+
+    <div style="text-align:center;margin:12px 0 32px;">
+      <button class="btn-bio bio-pulse" style="width:120px;height:120px;border-radius:50%;font-size:48px;display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--green);" onclick="activateBiometric()">
+        ☝️
+      </button>
+      <p style="margin-top:16px;font-size:13px;color:var(--text-dim);">Tocá para registrar tu huella<br>o Face ID</p>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <p style="font-size:13px;color:var(--text-dim);line-height:1.55;">
+        🔒 Tu huella <strong style="color:var(--text)">nunca sale de tu dispositivo</strong>. Solo se usa para confirmar que sos vos antes de mostrar tu información financiera.
+      </p>
+    </div>
+
+    <div class="stack">
+      <button class="btn btn-green" onclick="activateBiometric()" id="bio-btn">Activar huella / Face ID</button>
+      <button class="link-btn" onclick="skipBiometric()">Omitir por ahora →</button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA 1D — LISTO / ONBOARDING FINAL
+  ══════════════════════════════════════════ -->
+  <section class="screen" id="s-ready">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;">
+      <div style="width:88px;height:88px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 12px 36px rgba(127,201,122,0.35);">
+        ✓
+      </div>
+      <div>
+        <h1 style="margin-bottom:8px;">¡Todo listo<span id="ready-name"></span>!</h1>
+        <p class="sub" style="max-width:260px;margin:0 auto;">Tu cuenta está creada y segura. Empezá a registrar tus finanzas.</p>
+      </div>
+    </div>
+
+    <div class="steps" style="margin-bottom:20px;">
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot active"></div>
+    </div>
+
+    <div class="stack">
+      <button class="btn btn-accent" onclick="enterApp()">Entrar a NMCLB →</button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA 1E — LOGIN
+  ══════════════════════════════════════════ -->
+  <section class="screen" id="s-login">
+    <div class="brandmark" style="margin-bottom:28px;">
+      <div class="dot">✓</div>
+      <div class="txt">al toque · soluciones de bolsillo</div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:28px;">
+      <div class="wallet-logo" style="width:72px;height:72px;border-radius:20px;margin-bottom:12px;">
+        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="16" width="40" height="28" rx="5" stroke="white" stroke-width="2.8" fill="none"/>
+          <rect x="4" y="16" width="40" height="9" rx="4" fill="white" fill-opacity="0.18"/>
+          <circle cx="38" cy="38" r="3" stroke="white" stroke-width="2.4" fill="none"/>
+          <rect x="13" y="5" width="18" height="13" rx="3" stroke="white" stroke-width="2.4" fill="none" transform="rotate(-8 13 5)"/>
+          <rect x="22" y="3" width="16" height="12" rx="3" stroke="white" stroke-width="2.4" fill="none" transform="rotate(6 22 3)"/>
+          <line x1="10" y1="31" x2="28" y2="31" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+      </div>
+      <h2>Ingresá a NMCLB</h2>
+    </div>
+
+    <!-- Si hay biometría registrada, mostrar opción rápida -->
+    <div id="bio-login-wrap" style="display:none;margin-bottom:20px;">
+      <button class="btn-bio bio-pulse" style="width:100%;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:15px;font-weight:700;padding:16px;" onclick="loginWithBiometric()">
+        <span style="font-size:28px;">☝️</span> Entrar con huella / Face ID
+      </button>
+      <div class="divider"><span>o ingresá con contraseña</span></div>
+    </div>
+
+    <div class="field">
+      <label class="label">Email</label>
+      <input class="input" id="l-email" type="email" placeholder="tucorreo@email.com" inputmode="email" autocomplete="email">
+    </div>
+    <div class="field">
+      <label class="label">Contraseña</label>
+      <div class="input-icon-wrap">
+        <input class="input" id="l-pass" type="password" placeholder="Tu contraseña" autocomplete="current-password">
+        <span class="iico" onclick="togglePass('l-pass',this)">👁</span>
+      </div>
+    </div>
+    <div class="err-msg" id="l-err">Email o contraseña incorrectos.</div>
+
+    <div class="mt-auto stack">
+      <button class="btn btn-accent" onclick="loginWithPassword()">Entrar</button>
+      <button class="link-btn" onclick="go('s-welcome')">‹ Volver</button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA 2 — DASHBOARD
+  ══════════════════════════════════════════ -->
+  <section class="screen" id="s-dashboard">
+
+    <!-- HEADER -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
+      <div>
+        <div class="brandmark"><div class="dot">✓</div><div class="txt">al toque · soluciones de bolsillo</div></div>
+        <p style="font-size:13px;color:var(--text-dim);margin-top:6px;" id="db-date">Cargando...</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button onclick="toggleVisibility()" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:10px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;" id="eye-btn">👁</button>
+        <div style="width:38px;height:38px;border-radius:10px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;" id="db-avatar">M</div>
+      </div>
+    </div>
+
+    <!-- BALANCE TOTAL -->
+    <div style="background:var(--grad);border-radius:22px;padding:22px 20px;margin-bottom:14px;box-shadow:0 12px 36px rgba(255,107,53,0.32);position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.07);"></div>
+      <div style="position:absolute;bottom:-30px;right:20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.05);"></div>
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.88;margin-bottom:6px;">Balance total</p>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
+        <span style="font-size:13px;font-weight:700;opacity:.88;">$</span>
+        <span style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:42px;font-weight:800;line-height:1;" id="db-total">0</span>
+      </div>
+      <p style="font-size:12px;opacity:.78;" id="db-total-sub">Julio 2026 · todo en pesos</p>
+    </div>
+
+    <!-- TRES BOLSILLOS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:14px;">
+      <div class="bolsillo-card" onclick="go('s-wallet')">
+        <div class="b-icon">💵</div>
+        <div class="b-label">Efectivo</div>
+        <div class="b-val" id="b-cash">$0</div>
+      </div>
+      <div class="bolsillo-card" onclick="go('s-wallet')">
+        <div class="b-icon">📱</div>
+        <div class="b-label">Digital</div>
+        <div class="b-val" id="b-digital">$0</div>
+      </div>
+      <div class="bolsillo-card" onclick="go('s-wallet')">
+        <div class="b-icon">📈</div>
+        <div class="b-label">Inversiones</div>
+        <div class="b-val" id="b-invest">$0</div>
+      </div>
+    </div>
+
+    <!-- RESUMEN DEL MES -->
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <p style="font-size:13px;font-weight:700;">Gastos del mes</p>
+        <span style="font-size:13px;font-weight:800;" id="db-spent-pct">0%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:22px;font-weight:800;" id="db-spent">$0</span>
+        <span style="font-size:13px;color:var(--text-dim);align-self:flex-end;padding-bottom:3px;">gastado este mes</span>
+      </div>
+      <!-- Barra de progreso -->
+      <div style="height:7px;border-radius:6px;background:rgba(255,255,255,0.10);overflow:hidden;margin-bottom:8px;">
+        <div id="db-bar" style="height:100%;border-radius:6px;background:var(--grad);width:0%;transition:width .8s cubic-bezier(.4,0,.2,1);"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:11px;color:var(--text-faint);">Ingresos del mes</span>
+        <span style="font-size:11px;font-weight:700;color:var(--green);" id="db-income">$0</span>
+      </div>
+    </div>
+
+    <!-- ÚLTIMOS MOVIMIENTOS -->
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <p style="font-size:13px;font-weight:700;">Últimos movimientos</p>
+        <button onclick="go('s-gastos')" style="background:none;border:none;color:var(--accent-soft);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">Ver todos →</button>
+      </div>
+      <div id="db-movements">
+        <div class="empty-state">Sin movimientos aún</div>
+      </div>
+    </div>
+
+    <!-- ACCIONES RÁPIDAS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:4px;">
+      <button class="quick-action" onclick="go('s-gastos')">
+        <span style="font-size:22px;">💸</span>
+        <span>Cargar gasto</span>
+      </button>
+      <button class="quick-action" onclick="go('s-wallet')">
+        <span style="font-size:22px;">👛</span>
+        <span>Mi billetera</span>
+      </button>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA 2 — HOME (Ingreso / Egreso)
+  ══════════════════════════════════════════ -->
+  <!-- ══════════════════════════════════════════
+       PANTALLA UNLOCK — Desbloqueo biométrico
+  ══════════════════════════════════════════ -->
+  <section class="screen" id="s-unlock">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:20px;">
+      <div class="wallet-logo" style="width:80px;height:80px;border-radius:24px;">
+        <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="16" width="40" height="28" rx="5" stroke="white" stroke-width="2.8" fill="none"/>
+          <rect x="4" y="16" width="40" height="9" rx="4" fill="white" fill-opacity="0.18"/>
+          <circle cx="38" cy="38" r="3" stroke="white" stroke-width="2.4" fill="none"/>
+          <rect x="13" y="5" width="18" height="13" rx="3" stroke="white" stroke-width="2.4" fill="none" transform="rotate(-8 13 5)"/>
+          <rect x="22" y="3" width="16" height="12" rx="3" stroke="white" stroke-width="2.4" fill="none" transform="rotate(6 22 3)"/>
+        </svg>
+      </div>
+      <div>
+        <h1 style="font-size:24px;">Hola<span id="unlock-name-wrap">, <span id="unlock-name"></span></span></h1>
+        <p class="sub" style="margin-top:6px;">Verificá tu identidad para continuar</p>
+      </div>
+      <button class="btn-bio bio-pulse" style="width:110px;height:110px;border-radius:50%;font-size:44px;display:flex;align-items:center;justify-content:center;border:2px solid var(--green);cursor:pointer;" onclick="unlockWithBio()">☝️</button>
+    </div>
+    <div class="stack">
+      <button class="btn btn-green" id="unlock-btn" onclick="unlockWithBio()">Desbloquear con huella</button>
+      <button class="link-btn" onclick="go('s-login')">Usar contraseña</button>
+    </div>
+  </section>
+
+  <section class="screen" id="s-home">
+    <!-- Header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:26px;">
+      <div>
+        <p style="font-size:12px;color:var(--text-dim);font-weight:600;letter-spacing:.02em;" id="home-greeting">Hola</p>
+        <h1 style="font-size:26px;margin-top:2px;" id="home-name">Usuario</h1>
+        <p style="font-size:12px;color:var(--text-faint);margin-top:3px;" id="home-date">Hoy</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;">
+        <button onclick="toggleVisibility()" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:11px;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;" id="eye-btn-home">👁</button>
+        <button onclick="openProfileModal()" style="width:38px;height:38px;border-radius:11px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;border:none;cursor:pointer;" id="home-avatar">U</button>
+      </div>
+    </div>
+
+    <!-- Acciones principales -->
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);margin:22px 0 11px;">Registrar movimiento</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;">
+      <button class="action-tile income" onclick="openMovModal('income')">
+        <div class="at-icon">↓</div>
+        <p class="at-title">Ingreso</p>
+        <p class="at-sub">Entra plata</p>
+      </button>
+      <button class="action-tile expense" onclick="openMovModal('expense')">
+        <div class="at-icon">↑</div>
+        <p class="at-title">Egreso</p>
+        <p class="at-sub">Sale plata</p>
+      </button>
+    </div>
+
+    <!-- Accesos -->
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);margin:22px 0 11px;">Accesos</p>
+    <div class="stack" style="gap:9px;">
+      <button class="nav-tile" onclick="go('s-wallet')">
+        <span class="nt-icon">👛</span>
+        <div style="flex:1;text-align:left;">
+          <p class="nt-title">Mi billetera</p>
+          <p class="nt-sub">Balance, bolsillos e inversiones</p>
+        </div>
+        <span style="font-size:18px;color:var(--text-faint);">›</span>
+      </button>
+      <button class="nav-tile" onclick="go('s-gastos')">
+        <span class="nt-icon">📊</span>
+        <div style="flex:1;text-align:left;">
+          <p class="nt-title">Historial</p>
+          <p class="nt-sub">Todos tus movimientos</p>
+        </div>
+        <span style="font-size:18px;color:var(--text-faint);">›</span>
+      </button>
+      <button class="nav-tile" onclick="go('s-shared')">
+        <span class="nt-icon">🤝</span>
+        <div style="flex:1;text-align:left;">
+          <p class="nt-title">Compartido conmigo</p>
+          <p class="nt-sub" id="nt-shared-sub">Gastos con otras personas</p>
+        </div>
+        <span style="font-size:18px;color:var(--text-faint);">›</span>
+      </button>
+    </div>
+
+    <!-- Brandmark al pie -->
+    <div style="margin-top:auto;padding-top:26px;display:flex;justify-content:center;">
+      <div class="brandmark" style="opacity:.55;"><div class="dot" style="width:20px;height:20px;font-size:11px;">✓</div><div class="txt" style="font-size:11px;">al toque · soluciones de bolsillo</div></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA 3 — BILLETERA (RESUMEN)
+  ══════════════════════════════════════════ -->
+  <section class="screen" id="s-wallet">
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <button onclick="go('s-home')" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:10px;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">‹</button>
+      <h2 style="flex:1;">Mi billetera</h2>
+      <button onclick="toggleVisibility()" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:10px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;" id="eye-btn-w">👁</button>
+    </div>
+
+    <!-- TOTAL CONSOLIDADO -->
+    <div class="total-card">
+      <div style="position:absolute;top:-20px;right:-20px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none;"></div>
+      <p class="total-card-label">Total consolidado</p>
+      <div id="w-total" class="w-val total-card-amount">$0</div>
+      <p class="total-card-rate" id="w-fx-rate">Cotización USD blue: cargando...</p>
+      <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;">
+        <button class="total-toggle on" id="tt-cash"    onclick="toggleTotalInclude('cash')">💵 Efectivo</button>
+        <button class="total-toggle on" id="tt-digital" onclick="toggleTotalInclude('digital')">📱 Digital</button>
+        <button class="total-toggle on" id="tt-invest"  onclick="toggleTotalInclude('invest')">📈 Inversión</button>
+        <button class="total-toggle on" id="tt-fx"      onclick="toggleTotalInclude('fx')">💱 Extranjera</button>
+        <button class="total-toggle on" id="tt-crypto"  onclick="toggleTotalInclude('crypto')">₿ Cripto</button>
+      </div>
+    </div>
+
+    <!-- BOTONES INGRESO / EGRESO -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;">
+      <button class="btn btn-green btn-sm" onclick="openMovModal('income')" style="gap:8px;">↓ Ingreso</button>
+      <button class="btn" style="background:var(--panel-strong);border:1px solid var(--red);color:var(--red);height:46px;border-radius:14px;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;" onclick="openMovModal('expense')">↑ Egreso</button>
+    </div>
+
+    <!-- RESUMEN 4 BOLSILLOS (vista principal) -->
+    <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim);margin-bottom:10px;">Mis bolsillos</p>
+
+    <div class="pocket-summary" onclick="openPocketDetail('cash')">
+      <div class="ps-icon" style="background:rgba(127,201,122,0.15);">💵</div>
+      <div class="ps-info"><p class="ps-name">Efectivo</p><p class="ps-sub">Dinero en mano</p></div>
+      <div style="text-align:right;"><p class="ps-val w-val" id="sum-cash">$0</p><span class="ps-arr">›</span></div>
+    </div>
+
+    <div class="pocket-summary" onclick="openPocketDetail('digital')">
+      <div class="ps-icon" style="background:rgba(124,168,247,0.15);">📱</div>
+      <div class="ps-info"><p class="ps-name">Digital</p><p class="ps-sub" id="sum-digital-count">Billeteras virtuales</p></div>
+      <div style="text-align:right;"><p class="ps-val w-val" id="sum-digital">$0</p><span class="ps-arr">›</span></div>
+    </div>
+
+    <div class="pocket-summary" onclick="openPocketDetail('invest')">
+      <div class="ps-icon" style="background:rgba(255,162,106,0.15);">📈</div>
+      <div class="ps-info"><p class="ps-name">Inversiones</p><p class="ps-sub" id="sum-invest-count">FCI, cripto, acciones</p></div>
+      <div style="text-align:right;"><p class="ps-val w-val" id="sum-invest">$0</p><span class="ps-arr">›</span></div>
+    </div>
+
+    <div class="pocket-summary" onclick="openPocketDetail('fx')">
+      <div class="ps-icon" style="background:rgba(255,210,100,0.15);">💱</div>
+      <div class="ps-info"><p class="ps-name">Moneda extranjera</p><p class="ps-sub" id="sum-fx-count">USD, EUR</p></div>
+      <div style="text-align:right;"><p class="ps-val w-val" id="sum-fx">$0</p><span class="ps-arr">›</span></div>
+    </div>
+
+    <div class="pocket-summary" onclick="openPocketDetail('crypto')">
+      <div class="ps-icon" style="background:rgba(247,147,26,0.15);">₿</div>
+      <div class="ps-info"><p class="ps-name">Cripto</p><p class="ps-sub" id="sum-crypto-count">BTC, ETH y más</p></div>
+      <div style="text-align:right;"><p class="ps-val w-val" id="sum-crypto">$0</p><span class="ps-arr">›</span></div>
+    </div>
+
+    <!-- GASTOS MENSUALES -->
+    <div class="card" style="margin:16px 0 14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <p class="label" style="margin-bottom:4px;">Gastos mensuales</p>
+          <p style="font-size:24px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;color:var(--accent-soft);" class="w-val" id="w-spent-month">$0</p>
+        </div>
+        <div style="text-align:right;">
+          <p class="label" style="margin-bottom:4px;">Ingresos</p>
+          <p style="font-size:16px;font-weight:800;color:var(--green);" class="w-val" id="w-income-month">$0</p>
+        </div>
+      </div>
+    </div>
+
+    <button class="nav-tile" onclick="go('s-gastos')" style="margin-bottom:6px;">
+      <span class="nt-icon">📊</span>
+      <div style="flex:1;text-align:left;">
+        <p class="nt-title">Ver historial completo</p>
+        <p class="nt-sub">Todos tus movimientos</p>
+      </div>
+      <span style="font-size:18px;color:var(--text-faint);">›</span>
+    </button>
+
+    <button class="link-btn" onclick="go('s-home')" style="margin-top:6px;">‹ Volver al inicio</button>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA 3B — DETALLE DE BOLSILLO
+  ══════════════════════════════════════════ -->
+  <section class="screen" id="s-pocket-detail">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <button onclick="go('s-wallet')" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:10px;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">‹</button>
+      <div style="display:flex;align-items:center;gap:10px;flex:1;">
+        <div class="ps-icon" id="pd-icon" style="width:36px;height:36px;font-size:17px;">💵</div>
+        <h2 id="pd-title">Efectivo</h2>
+      </div>
+      <button onclick="toggleVisibility()" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:10px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;">👁</button>
+    </div>
+
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:16px;text-align:center;">
+      <p style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Total en este bolsillo</p>
+      <p style="font-size:32px;font-weight:800;font-family:'M PLUS Rounded 1c',sans-serif;" class="w-val" id="pd-total">$0</p>
+    </div>
+
+    <div id="pd-body"></div>
+  </section>
+
+  <!-- MODAL: perfil -->
+  <div id="modal-profile" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:80;align-items:flex-end;">
+    <div style="background:var(--bg-1);border-radius:22px 22px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:440px;margin:0 auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <h2>Mi perfil</h2>
+        <button onclick="closeModal('modal-profile')" style="background:var(--panel);border:1px solid var(--border);width:34px;height:34px;border-radius:9px;font-size:18px;color:var(--text);cursor:pointer;">×</button>
+      </div>
+      <div class="field">
+        <label class="label">Tu nombre</label>
+        <input class="input" id="pf-name" placeholder="Ej: Mariano">
+      </div>
+      <div class="field">
+        <label class="label">Email</label>
+        <input class="input" id="pf-email" placeholder="tucorreo@email.com" inputmode="email">
+      </div>
+      <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <p style="font-size:13px;font-weight:700;">Huella / Face ID</p>
+            <p style="font-size:11px;color:var(--text-dim);margin-top:2px;" id="pf-bio-status">Desactivado</p>
+          </div>
+          <button class="btn btn-sm" id="pf-bio-btn" onclick="toggleBiometricSetting()" style="width:auto;padding:0 16px;background:var(--panel-strong);border:1px solid var(--border-strong);color:var(--text);">Activar</button>
+        </div>
+      </div>
+      <div class="stack" style="margin-bottom:14px;">
+        <button class="btn btn-accent" onclick="saveProfile()">Guardar cambios</button>
+      </div>
+
+      <!-- Actualizaciones -->
+      <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div>
+            <p style="font-size:13px;font-weight:700;">Versión de la app</p>
+            <p style="font-size:11px;color:var(--text-dim);margin-top:2px;" id="pf-version">v7</p>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="checkForUpdate()" id="pf-update-btn">🔄 Buscar actualizaciones</button>
+      </div>
+
+      <!-- Mantenimiento -->
+      <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px;">
+        <p style="font-size:13px;font-weight:700;margin-bottom:4px;">Datos</p>
+        <p style="font-size:11px;color:var(--text-dim);margin-bottom:11px;">Si los totales no coinciden con tus movimientos, podés recalcular o empezar de cero.</p>
+        <div class="stack" style="gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="recalcTotals()">🧮 Recalcular totales</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetMovements()" style="border-color:var(--accent-soft);color:var(--accent-soft);">🗑 Borrar todos los movimientos</button>
+          <button class="btn btn-ghost btn-sm" onclick="resetAll()" style="border-color:var(--red);color:var(--red);">⚠️ Borrar todo y empezar de cero</button>
+        </div>
+      </div>
+
+      <div class="stack">
+        <button class="btn btn-ghost btn-sm" onclick="logout()" style="border-color:var(--red);color:var(--red);">Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: editar movimiento -->
+  <div id="modal-edit-mov" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:80;align-items:flex-end;">
+    <div style="background:var(--bg-1);border-radius:22px 22px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:440px;margin:0 auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <h2>Editar movimiento</h2>
+        <button onclick="closeModal('modal-edit-mov')" style="background:var(--panel);border:1px solid var(--border);width:34px;height:34px;border-radius:9px;font-size:18px;color:var(--text);cursor:pointer;">×</button>
+      </div>
+      <div id="edit-mov-body"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: input de monto genérico (reemplaza prompt) -->
+  <div id="modal-amt" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:70;align-items:flex-end;">
+    <div style="background:var(--bg-1);border-radius:22px 22px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:440px;margin:0 auto;">
+      <h2 id="amt-modal-title" style="margin-bottom:16px;">Monto</h2>
+      <div class="field">
+        <label class="label" id="amt-modal-label">Monto ($)</label>
+        <div style="position:relative;">
+          <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--accent-soft);font-weight:700;">$</span>
+          <input class="input" type="number" inputmode="decimal" id="amt-modal-input" placeholder="0" style="padding-left:24px;">
+        </div>
+      </div>
+      <div class="stack" style="margin-top:4px;">
+        <button class="btn btn-accent" onclick="confirmAmtModal()">Confirmar</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-amt')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: input de texto genérico (reemplaza prompt de texto) -->
+  <div id="modal-txt" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:70;align-items:flex-end;">
+    <div style="background:var(--bg-1);border-radius:22px 22px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:440px;margin:0 auto;">
+      <h2 id="txt-modal-title" style="margin-bottom:16px;">Ingresá un dato</h2>
+      <div class="field">
+        <input class="input" id="txt-modal-input" placeholder="">
+      </div>
+      <div class="stack" style="margin-top:4px;">
+        <button class="btn btn-accent" onclick="confirmTxtModal()">Confirmar</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-txt')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: confirmación genérica (reemplaza confirm) -->
+  <div id="modal-confirm" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:70;align-items:flex-end;">
+    <div style="background:var(--bg-1);border-radius:22px 22px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:440px;margin:0 auto;text-align:center;">
+      <p style="font-size:15px;font-weight:600;margin-bottom:18px;" id="confirm-modal-text">¿Estás seguro?</p>
+      <div class="stack">
+        <button class="btn" style="background:var(--red);color:#fff;" onclick="confirmYes()">Sí, eliminar</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-confirm')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Ingreso / Egreso -->
+  <div id="modal-mov" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:60;align-items:flex-end;">
+    <div style="background:var(--bg-1);border-radius:22px 22px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:440px;margin:0 auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h2 id="mov-modal-title">Registrar movimiento</h2>
+        <button onclick="closeModal('modal-mov')" style="background:var(--panel);border:1px solid var(--border);width:34px;height:34px;border-radius:9px;font-size:18px;color:var(--text);cursor:pointer;">×</button>
+      </div>
+      <div id="mov-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: agregar cuenta / inversión -->
+  <div id="modal-account" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:50;align-items:flex-end;">
+    <div style="background:var(--bg-1);border-radius:22px 22px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:440px;margin:0 auto;" id="modal-inner">
+      <h2 id="modal-title" style="margin-bottom:16px;">Agregar</h2>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: detalle inversión -->
+  <div id="modal-invest" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:50;align-items:flex-end;">
+    <div style="background:var(--bg-1);border-radius:22px 22px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:440px;margin:0 auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h2 id="inv-modal-title">Inversión</h2>
+        <button onclick="closeModal('modal-invest')" style="background:var(--panel);border:1px solid var(--border);width:34px;height:34px;border-radius:9px;font-size:18px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;">×</button>
+      </div>
+      <div id="inv-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA 4 — GASTOS
+  ══════════════════════════════════════════ -->
+  <section class="screen" id="s-gastos">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+      <button onclick="go('s-home')" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:10px;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">‹</button>
+      <h2 style="flex:1;">Historial</h2>
+      <button onclick="toggleVisibility()" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:10px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;">👁</button>
+    </div>
+
+    <!-- RESUMEN DEL MES -->
+    <div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <p class="label" style="margin-bottom:4px;">Gastado este mes</p>
+          <p style="font-size:24px;font-weight:800;color:var(--accent-soft);" class="w-val" id="h-spent">$0</p>
+        </div>
+        <div style="text-align:right;">
+          <p class="label" style="margin-bottom:4px;">Ingresos</p>
+          <p style="font-size:16px;font-weight:800;color:var(--green);" class="w-val" id="h-income">$0</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+      <select class="input select" id="g-filter-cat" onchange="renderExpenseList()" style="flex:1;min-width:120px;height:40px;font-size:12px;padding:0 30px 0 10px;"></select>
+      <select class="input select" id="g-filter-src" onchange="renderExpenseList()" style="flex:1;min-width:110px;height:40px;font-size:12px;padding:0 30px 0 10px;"></select>
+      <button class="btn btn-ghost btn-sm" style="width:auto;padding:0 14px;height:40px;" onclick="exportExpensesCSV()">⬇</button>
+    </div>
+
+    <!-- LISTADO -->
+    <div class="lwrap" id="g-list"></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA — COMPARTIDO CONMIGO
+  ══════════════════════════════════════════ -->
+  <section class="screen" id="s-shared">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+      <button onclick="go('s-home')" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:10px;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">‹</button>
+      <h2 style="flex:1;">Compartido</h2>
+      <button onclick="toggleVisibility()" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:10px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;">👁</button>
+    </div>
+    <div id="shared-body"></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       PANTALLA — DETALLE DE UNA PERSONA
+  ══════════════════════════════════════════ -->
+  <section class="screen" id="s-shared-detail">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+      <button onclick="go('s-shared')" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:10px;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">‹</button>
+      <h2 style="flex:1;" id="sd-title">Persona</h2>
+      <button onclick="toggleVisibility()" style="background:var(--panel);border:1px solid var(--border);width:38px;height:38px;border-radius:10px;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;">👁</button>
+    </div>
+    <div id="shared-detail-body"></div>
+  </section>
+
+  <!-- MODAL: saldar deuda -->
+  <div id="modal-settle" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:80;align-items:flex-end;">
+    <div style="background:var(--bg-1);border-radius:22px 22px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:440px;margin:0 auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h2 id="settle-title">Saldar cuenta</h2>
+        <button onclick="closeModal('modal-settle')" style="background:var(--panel);border:1px solid var(--border);width:34px;height:34px;border-radius:9px;font-size:18px;color:var(--text);cursor:pointer;">×</button>
+      </div>
+      <div id="settle-body"></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script type="module">
+// ══════════════════════════════════════════════════════════════════════════
+//  FIREBASE — Autenticación y sincronización en la nube
+// ══════════════════════════════════════════════════════════════════════════
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged, setPersistence, browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getDatabase, ref, set, get, update, onValue, remove, push, child
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCdsG8R99S5gE0CcGSiaEFBYliG2sGPRE4",
+  authDomain: "gastos-hormiga-mm.firebaseapp.com",
+  databaseURL: "https://gastos-hormiga-mm-default-rtdb.firebaseio.com",
+  projectId: "gastos-hormiga-mm",
+  storageBucket: "gastos-hormiga-mm.firebasestorage.app",
+  messagingSenderId: "956126066730",
+  appId: "1:956126066730:web:e426976c97fa32ee17eb53"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const fbAuth = getAuth(fbApp);
+const fbDb   = getDatabase(fbApp);
+
+// Exponer para el script principal
+window.FB = {
+  auth: fbAuth, db: fbDb,
+  createUser: createUserWithEmailAndPassword,
+  signIn: signInWithEmailAndPassword,
+  signOutFn: signOut,
+  onAuthChanged: onAuthStateChanged,
+  setPersist: setPersistence,
+  localPersist: browserLocalPersistence,
+  ref, set, get, update, onValue, remove, push, child
+};
+
+setPersistence(fbAuth, browserLocalPersistence).catch(()=>{});
+window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<script>
+// ── Navegación ──────────────────────────────────────────────────────────
+function go(id){
+  try{
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    const el = document.getElementById(id);
+    if(!el){ console.error('Pantalla no encontrada:', id); return; }
+    el.classList.add('active');
+    el.scrollTop = 0;
+    window.scrollTo(0,0);
+    if(id==='s-wallet')   initWallet();
+    if(id==='s-gastos')   initGastos();
+    if(id==='s-home')     initHome();
+    if(id==='s-shared')   renderShared();
+  }catch(err){ console.error('go() error:', err); }
+}
+
+// ── Toggle password visibility ──────────────────────────────────────────
+function togglePass(inputId, icon){
+  const inp=document.getElementById(inputId);
+  inp.type=inp.type==='password'?'text':'password';
+  icon.textContent=inp.type==='password'?'👁':'🙈';
+}
+
+// ── Registro paso 1 ─────────────────────────────────────────────────────
+function registerStep1(){
+  const name=document.getElementById('r-name').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  const pass=document.getElementById('r-pass').value;
+  const pass2=document.getElementById('r-pass2').value;
+  const err=document.getElementById('r-err');
+
+  err.classList.remove('show');
+
+  if(!name){ toast('¿Cómo te llamás? 😊'); return; }
+  if(!email||!email.includes('@')){ toast('Ingresá un email válido'); return; }
+  if(pass.length<8){ toast('La contraseña debe tener al menos 8 caracteres'); return; }
+  if(pass!==pass2){ err.textContent='Las contraseñas no coinciden.'; err.classList.add('show'); return; }
+
+  // Guardar temporalmente para el flujo
+  sessionStorage.setItem('reg_name', name);
+  sessionStorage.setItem('reg_email', email);
+  sessionStorage.setItem('reg_pass', pass);
+
+  document.getElementById('ready-name').textContent=', '+name;
+  go('s-biometric');
+}
+
+// ── Biometría ───────────────────────────────────────────────────────────
+async function activateBiometric(){
+  const ok = await registerBiometric();
+  if(ok) toast('✓ Huella activada');
+  go('s-ready');
+}
+
+function skipBiometric(){ go('s-ready'); }
+
+// ── Login con biometría ─────────────────────────────────────────────────
+async function loginWithBiometric(){
+  const ok = await verifyBiometric();
+  if(ok){ toast('✓ Verificado'); enterApp(); }
+  else toast('No se pudo verificar. Usá tu contraseña.');
+}
+
+// ── Login con contraseña ────────────────────────────────────────────────
+function loginWithPassword(){
+  const email=document.getElementById('l-email').value.trim();
+  const pass=document.getElementById('l-pass').value;
+  const err=document.getElementById('l-err');
+  err.classList.remove('show');
+  if(!email||!pass){ toast('Completá email y contraseña'); return; }
+  // Acá iría la validación con Firebase Auth
+  // Por ahora simula login exitoso
+  toast('Verificando...');
+  setTimeout(()=>{ enterApp(); }, 800);
+}
+
+// ── Entrar a la app ─────────────────────────────────────────────────────
+function enterApp(){
+  const name = sessionStorage.getItem('reg_name') || localStorage.getItem('nmclb_name') || '';
+  if(name) localStorage.setItem('nmclb_name', name);
+  const email = sessionStorage.getItem('reg_email');
+  if(email) localStorage.setItem('nmclb_email', email);
+  localStorage.setItem('nmclb_session','1');   // sesión persistente
+  initHome();
+  go('s-home');
+}
+
+// ── Arranque de la app ────────────────────────────────────────────────────
+async function bootApp(){
+  try{
+    const hasAccount = !!localStorage.getItem('nmclb_name');
+    const hasSession = localStorage.getItem('nmclb_session')==='1';
+    const bioOn      = localStorage.getItem('nmclb_bioEnabled')==='1';
+
+    if(!hasAccount){ go('s-welcome'); return; }
+
+    if(hasSession && bioOn){
+      const nameEl = document.getElementById('unlock-name');
+      if(nameEl) nameEl.textContent = localStorage.getItem('nmclb_name')||'';
+      go('s-unlock');
+      setTimeout(async ()=>{
+        try{
+          const ok = await verifyBiometric();
+          if(ok){ initHome(); go('s-home'); }
+        }catch(e){ /* el usuario puede desbloquear manualmente */ }
+      }, 500);
+      return;
+    }
+
+    if(hasSession){ initHome(); go('s-home'); return; }
+
+    go('s-login');
+  }catch(err){
+    console.error('bootApp error:', err);
+    go('s-welcome');
+  }
+}
+
+async function unlockWithBio(){
+  const btn = document.getElementById('unlock-btn');
+  btn.textContent = 'Verificando…';
+  const ok = await verifyBiometric();
+  btn.textContent = 'Desbloquear con huella';
+  if(ok){ initHome(); go('s-home'); }
+  else toast('No se pudo verificar. Probá de nuevo.');
+}
+
+function initHome(){
+  const now = new Date();
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const h = now.getHours();
+  const greeting = h<6 ? 'Buenas noches' : h<13 ? 'Buen día' : h<20 ? 'Buenas tardes' : 'Buenas noches';
+
+  const name = localStorage.getItem('nmclb_name') || 'Usuario';
+  document.getElementById('home-greeting').textContent = greeting;
+  document.getElementById('home-name').textContent = name;
+  document.getElementById('home-date').textContent = dias[now.getDay()]+', '+now.getDate()+' de '+meses[now.getMonth()];
+  document.getElementById('home-avatar').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('eye-btn-home').textContent = valuesVisible ? '👁' : '🙈';
+
+  try{ renderShared(); }catch(e){}
+  if(!valuesVisible) applyVisibilityWallet();
+}
+
+// ── PERFIL ────────────────────────────────────────────────────────────────
+function openProfileModal(){
+  document.getElementById('pf-name').value  = localStorage.getItem('nmclb_name')||'';
+  document.getElementById('pf-email').value = localStorage.getItem('nmclb_email')||'';
+  const bioOn = localStorage.getItem('nmclb_bioEnabled')==='1';
+  document.getElementById('pf-bio-status').textContent = bioOn ? 'Activado ✓' : 'Desactivado';
+  document.getElementById('pf-bio-btn').textContent    = bioOn ? 'Desactivar' : 'Activar';
+  const vEl = document.getElementById('pf-version');
+  if(vEl) vEl.textContent = 'v'+APP_VERSION;
+  document.getElementById('modal-profile').style.display='flex';
+}
+
+function saveProfile(){
+  const name  = document.getElementById('pf-name').value.trim();
+  const email = document.getElementById('pf-email').value.trim();
+  if(!name){ toast('Poné tu nombre'); return; }
+  localStorage.setItem('nmclb_name', name);
+  if(email) localStorage.setItem('nmclb_email', email);
+  closeModal('modal-profile');
+  initHome();
+  toast('✓ Perfil actualizado');
+}
+
+async function toggleBiometricSetting(){
+  const bioOn = localStorage.getItem('nmclb_bioEnabled')==='1';
+  if(bioOn){
+    localStorage.removeItem('nmclb_bioEnabled');
+    localStorage.removeItem('nmclb_credId');
+    toast('Huella desactivada');
+    openProfileModal();
+  } else {
+    const ok = await registerBiometric();
+    if(ok){ toast('✓ Huella activada'); openProfileModal(); }
+  }
+}
+
+function logout(){
+  askConfirm('¿Cerrar sesión? Tus datos quedan guardados en este dispositivo.', ()=>{
+    localStorage.removeItem('nmclb_session');
+    closeModal('modal-profile');
+    go('s-welcome');
+    toast('Sesión cerrada');
+  });
+}
+
+// ── ACTUALIZACIONES ───────────────────────────────────────────────────────
+const APP_VERSION = 8;
+
+async function checkForUpdate(){
+  const btn = document.getElementById('pf-update-btn');
+  const original = btn.textContent;
+  btn.textContent = '⏳ Buscando...';
+  btn.disabled = true;
+
+  try{
+    // Pedir el HTML del servidor sin usar caché
+    const r = await fetch('./index.html?t='+Date.now(), {cache:'no-store'});
+    const text = await r.text();
+    const match = text.match(/name="app-version" content="(\d+)"/);
+    const remote = match ? parseInt(match[1]) : APP_VERSION;
+
+    if(remote > APP_VERSION){
+      btn.textContent = original;
+      btn.disabled = false;
+      askConfirmCustom(
+        `Hay una versión nueva disponible (v${remote}).\n\nSe va a recargar la app. Tus datos no se pierden.`,
+        'Actualizar ahora',
+        async ()=>{
+          // Limpiar cachés del service worker y recargar
+          if('caches' in window){
+            const keys = await caches.keys();
+            await Promise.all(keys.map(k=>caches.delete(k)));
+          }
+          if('serviceWorker' in navigator){
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map(r=>r.unregister()));
+          }
+          location.reload(true);
+        }
+      );
+    } else {
+      btn.textContent = '✓ Ya tenés la última versión';
+      setTimeout(()=>{ btn.textContent = original; btn.disabled = false; }, 2500);
+      toast('✓ Estás en la versión más reciente (v'+APP_VERSION+')');
+    }
+  }catch(e){
+    btn.textContent = original;
+    btn.disabled = false;
+    toast('No se pudo verificar. Revisá tu conexión.');
+  }
+}
+
+// Confirmación con texto y botón personalizables
+let confirmCustomCb = null;
+function askConfirmCustom(text, btnLabel, callback){
+  document.getElementById('confirm-modal-text').textContent = text;
+  const yesBtn = document.querySelector('#modal-confirm .btn');
+  yesBtn.textContent = btnLabel;
+  yesBtn.style.background = 'var(--grad)';
+  confirmCustomCb = callback;
+  confirmYesCallback = ()=>{ if(confirmCustomCb) confirmCustomCb(); confirmCustomCb=null; yesBtn.style.background=''; };
+  document.getElementById('modal-confirm').style.display='flex';
+}
+
+// ── MANTENIMIENTO DE DATOS ────────────────────────────────────────────────
+function recalcTotals(){
+  // Los totales ahora se derivan siempre de los movimientos, así que
+  // solo hay que limpiar los contadores viejos y refrescar.
+  localStorage.removeItem('nmclb_spent_month');
+  localStorage.removeItem('nmclb_income_month');
+  initWallet(); initHome();
+  if(typeof initGastos==='function') initGastos();
+  closeModal('modal-profile');
+  toast('✓ Totales recalculados desde tus movimientos');
+}
+
+function resetMovements(){
+  askConfirm('¿Borrar TODOS los movimientos? Los saldos de tus bolsillos quedan como están.', ()=>{
+    localStorage.removeItem('nmclb_expenses');
+    localStorage.removeItem('nmclb_settlements');
+    localStorage.removeItem('nmclb_spent_month');
+    localStorage.removeItem('nmclb_income_month');
+    // Limpiar historiales internos de las cuentas
+    ['digital','invest','fx','crypto'].forEach(t=>{
+      const accs = getAccounts(t);
+      accs.forEach(a=>{ a.history = []; });
+      saveAccounts(t, accs);
+    });
+    const d = getWalletData();
+    d.cashHistory = [];
+    localStorage.setItem('nmclb_wallet_data', JSON.stringify(d));
+
+    closeModal('modal-profile');
+    initWallet(); initHome();
+    if(typeof initGastos==='function') initGastos();
+    go('s-home');
+    toast('✓ Movimientos borrados');
+  });
+}
+
+function resetAll(){
+  askConfirm('⚠️ Esto borra TODO: bolsillos, movimientos, billeteras e inversiones. Tu cuenta y tu huella se mantienen. ¿Seguir?', ()=>{
+    ['nmclb_expenses','nmclb_settlements','nmclb_spent_month','nmclb_income_month',
+     'nmclb_wallet','nmclb_wallet_data','nmclb_digital_accounts','nmclb_invest_accounts',
+     'nmclb_fx_accounts','nmclb_crypto_accounts','nmclb_total_includes'
+    ].forEach(k=>localStorage.removeItem(k));
+
+    closeModal('modal-profile');
+    initWallet(); initHome();
+    go('s-home');
+    toast('✓ Todo borrado. Empezás de cero.');
+  });
+}
+
+// ── BIOMETRÍA ─────────────────────────────────────────────────────────────
+async function registerBiometric(){
+  if(!window.PublicKeyCredential){ toast('Tu dispositivo no soporta biometría'); return false; }
+  try{
+    const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if(!available){ toast('No hay huella/Face ID configurado en el celu'); return false; }
+
+    const challenge = new Uint8Array(32); crypto.getRandomValues(challenge);
+    const userId    = new Uint8Array(16); crypto.getRandomValues(userId);
+    const name  = localStorage.getItem('nmclb_name')||'Usuario';
+    const email = localStorage.getItem('nmclb_email')||'user@nmclb.app';
+
+    const cred = await navigator.credentials.create({
+      publicKey:{
+        challenge,
+        rp:{ name:'NMCLB' },
+        user:{ id:userId, name:email, displayName:name },
+        pubKeyCredParams:[{alg:-7,type:'public-key'},{alg:-257,type:'public-key'}],
+        authenticatorSelection:{ authenticatorAttachment:'platform', userVerification:'required', residentKey:'preferred' },
+        timeout:60000,
+      }
+    });
+    const idB64 = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+    localStorage.setItem('nmclb_credId', idB64);
+    localStorage.setItem('nmclb_bioEnabled','1');
+    return true;
+  }catch(e){
+    if(e.name==='NotAllowedError') toast('Cancelado');
+    else toast('No se pudo activar la huella');
+    return false;
+  }
+}
+
+async function verifyBiometric(){
+  if(!window.PublicKeyCredential) return false;
+  const idB64 = localStorage.getItem('nmclb_credId');
+  try{
+    const challenge = new Uint8Array(32); crypto.getRandomValues(challenge);
+    const opts = { challenge, userVerification:'required', timeout:60000 };
+    if(idB64){
+      const raw = Uint8Array.from(atob(idB64), c=>c.charCodeAt(0));
+      opts.allowCredentials = [{ id:raw, type:'public-key', transports:['internal'] }];
+    }
+    await navigator.credentials.get({ publicKey: opts });
+    return true;
+  }catch(e){ return false; }
+}
+
+// ── Cotización USD/EUR// ── Cotización USD/EUR (dolarapi.com - blue) ─────────────────────────────
+let fxRates = { usd: 0, eur: 0, updated: null };
+
+async function loadFxRates(){
+  try{
+    const [dolares, euros] = await Promise.all([
+      fetch('https://dolarapi.com/v1/dolares').then(r=>r.json()),
+      fetch('https://dolarapi.com/v1/cotizaciones/eur').then(r=>r.json()).catch(()=>null)
+    ]);
+    const blue = dolares.find(d=>d.casa==='blue');
+    fxRates.usd = blue ? blue.venta : 0;
+    fxRates.eur = euros ? euros.venta : (fxRates.usd*1.08); // fallback aproximado
+    fxRates.updated = new Date();
+    localStorage.setItem('nmclb_fx_rates', JSON.stringify(fxRates));
+  }catch(e){
+    // fallback: usar última cotización guardada
+    const cached = JSON.parse(localStorage.getItem('nmclb_fx_rates')||'null');
+    if(cached) fxRates = cached;
+  }
+  updateFxDisplay();
+}
+
+function updateFxDisplay(){
+  const el = document.getElementById('w-fx-rate');
+  if(el && fxRates.usd){
+    el.textContent = 'Cotización USD blue: $'+fmt(fxRates.usd)+' · EUR: $'+fmt(fxRates.eur);
+  }
+}
+
+// ── COTIZACIONES CRIPTO (CoinGecko) ──────────────────────────────────────
+const CRYPTOS = [
+  {id:'bitcoin',      sym:'BTC',  name:'Bitcoin',  color:'#F7931A'},
+  {id:'ethereum',     sym:'ETH',  name:'Ethereum', color:'#627EEA'},
+  {id:'tether',       sym:'USDT', name:'Tether',   color:'#26A17B'},
+  {id:'usd-coin',     sym:'USDC', name:'USD Coin', color:'#2775CA'},
+  {id:'solana',       sym:'SOL',  name:'Solana',   color:'#14F195'},
+  {id:'binancecoin',  sym:'BNB',  name:'BNB',      color:'#F0B90B'},
+  {id:'cardano',      sym:'ADA',  name:'Cardano',  color:'#0033AD'},
+  {id:'ripple',       sym:'XRP',  name:'XRP',      color:'#23292F'},
+  {id:'dogecoin',     sym:'DOGE', name:'Dogecoin', color:'#C2A633'},
+  {id:'matic-network',sym:'MATIC',name:'Polygon',  color:'#8247E5'},
+];
+
+let cryptoPrices = {};   // { bitcoin: 67000, ... } en USD
+
+async function loadCryptoPrices(){
+  try{
+    const ids = CRYPTOS.map(c=>c.id).join(',');
+    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`);
+    const data = await r.json();
+    CRYPTOS.forEach(c=>{ if(data[c.id]?.usd) cryptoPrices[c.sym] = data[c.id].usd; });
+    localStorage.setItem('nmclb_crypto_prices', JSON.stringify({prices:cryptoPrices, at:Date.now()}));
+  }catch(e){
+    const cached = JSON.parse(localStorage.getItem('nmclb_crypto_prices')||'null');
+    if(cached?.prices) cryptoPrices = cached.prices;
+  }
+}
+
+// Valor total de cripto en pesos
+function cryptoTotalARS(){
+  const accs = getAccounts('crypto');
+  const usdRate = fxRates.usd || 0;
+  return accs.reduce((s,a)=>{
+    const priceUsd = cryptoPrices[a.symbol] || 0;
+    return s + (a.amount * priceUsd * usdRate);
+  }, 0);
+}
+
+function cryptoTotalUSD(){
+  const accs = getAccounts('crypto');
+  return accs.reduce((s,a)=> s + a.amount * (cryptoPrices[a.symbol]||0), 0);
+}
+
+// ── Billetera ─────────────────────────────────────────────────────────────
+function getTotalIncludes(){
+  return JSON.parse(localStorage.getItem('nmclb_total_includes')||'{"cash":true,"digital":true,"invest":true,"fx":true,"crypto":true}');
+}
+
+function toggleTotalInclude(key){
+  const inc = getTotalIncludes();
+  inc[key] = !inc[key];
+  localStorage.setItem('nmclb_total_includes', JSON.stringify(inc));
+  document.getElementById('tt-'+key).classList.toggle('on', inc[key]);
+  initWallet();
+}
+
+function initWallet(){
+  loadFxRates();
+  loadCryptoPrices().then(()=>{
+    const el=document.getElementById('sum-crypto');
+    if(el){ const v='$'+fmt(cryptoTotalARS()); el.textContent=v; el.dataset.real=v; }
+    if(currentPocket==='crypto' && document.getElementById('s-pocket-detail').classList.contains('active')) renderPocketBody('crypto');
+  });
+  const includes = getTotalIncludes();
+  ['cash','digital','invest','fx','crypto'].forEach(k=>{
+    const btn = document.getElementById('tt-'+k);
+    if(btn) btn.classList.toggle('on', includes[k]);
+  });
+
+  const cashTotal    = getWalletData().cash;
+  const digitalTotal = getAccounts('digital').reduce((s,a)=>s+a.total,0);
+  const investTotal  = getAccounts('invest').reduce((s,a)=>s+a.total,0);
+  const fxAccs       = getAccounts('fx');
+  const fxTotalARS   = fxAccs.reduce((s,a)=>s + a.amount * (fxRates[a.currency]||0), 0);
+  const cryptoARS    = cryptoTotalARS();
+
+  const grand = (includes.cash?cashTotal:0) + (includes.digital?digitalTotal:0)
+              + (includes.invest?investTotal:0) + (includes.fx?fxTotalARS:0)
+              + (includes.crypto?cryptoARS:0);
+
+  setWalletField('w-total', '$'+fmt(grand));
+  setWalletField('sum-cash',    '$'+fmt(cashTotal));
+  setWalletField('sum-digital', '$'+fmt(digitalTotal));
+  setWalletField('sum-invest',  '$'+fmt(investTotal));
+  setWalletField('sum-fx',      '$'+fmt(fxTotalARS));
+  setWalletField('sum-crypto',  '$'+fmt(cryptoARS));
+
+  const dCount = getAccounts('digital').length;
+  const iCount = getAccounts('invest').length;
+  const fCount = fxAccs.length;
+  document.getElementById('sum-digital-count').textContent = dCount ? dCount+' billetera'+(dCount>1?'s':'') : 'Billeteras virtuales';
+  document.getElementById('sum-invest-count').textContent  = iCount ? iCount+' inversión'+(iCount>1?'es':'') : 'FCI, cripto, acciones';
+  document.getElementById('sum-fx-count').textContent      = fCount ? fCount+' moneda'+(fCount>1?'s':'') : 'USD, EUR';
+  const cCount = getAccounts('crypto').length;
+  const cEl = document.getElementById('sum-crypto-count');
+  if(cEl) cEl.textContent = cCount ? cCount+' tenencia'+(cCount>1?'s':'') : 'BTC, ETH y más';
+
+  const wallet = {cash: cashTotal, digital: digitalTotal, invest: investTotal, fx: fxTotalARS, crypto: cryptoARS};
+  localStorage.setItem('nmclb_wallet', JSON.stringify(wallet));
+
+  const eyeW = document.getElementById('eye-btn-w');
+  if(eyeW) eyeW.textContent = valuesVisible ? '👁' : '🙈';
+
+  // Gastos e ingresos del mes (derivados de los movimientos reales)
+  const spent  = spentThisMonth();
+  const income = incomeThisMonth();
+  setWalletField('w-spent-month',  '$'+fmt(spent));
+  setWalletField('w-income-month', '$'+fmt(income));
+
+  // Movimientos totales (últimos gastos)
+  renderWalletMovements();
+
+  if(!valuesVisible) applyVisibilityWallet();
+}
+
+function renderWalletMovements(){
+  const el = document.getElementById('w-movements');
+  if(!el) return;
+  const list = (typeof getExpenses === 'function' ? getExpenses() : []).slice(0,6);
+  if(!list.length){ el.innerHTML = '<div class="empty-state" style="border:none;padding:24px;">Sin movimientos aún 🌱</div>'; return; }
+  const catMap = {supermercado:'🛒',servicios:'💡',fijo:'🏠',transporte:'🚍',salud:'🏥',ocio:'🎬',ropa:'👕','no-necesario':'🙃',compartido:'🤝',otro:'📦'};
+  el.innerHTML = list.map(e=>{
+    const srcLabel = e.source==='cash' ? '💵' : '📱';
+    return `<div class="erow">
+      <div class="eicon cat-${e.cat}">${catMap[e.cat]||'📦'}</div>
+      <div class="eleft">
+        <div class="edesc">${esc(e.desc)}</div>
+        <div class="emeta">${srcLabel} ${fmtDate(e.date)}</div>
+      </div>
+      <div class="eamt val-sensitive w-val">-$${fmt(e.amount)}</div>
+    </div>`;
+  }).join('');
+}
+
+function setWalletField(id, val){
+  const el = document.getElementById(id);
+  if(el){ el.textContent = val; el.dataset.real = val; }
+}
+
+function getWalletData(){
+  return JSON.parse(localStorage.getItem('nmclb_wallet_data') || '{"cash":0,"cashHistory":[]}');
+}
+
+function getAccounts(type){
+  return JSON.parse(localStorage.getItem('nmclb_'+type+'_accounts') || '[]');
+}
+
+function saveAccounts(type, accs){
+  localStorage.setItem('nmclb_'+type+'_accounts', JSON.stringify(accs));
+}
+
+// ── DETALLE DE BOLSILLO ───────────────────────────────────────────────────
+let currentPocket = null;
+
+function openPocketDetail(type){
+  currentPocket = type;
+  const titles = {cash:'Efectivo', digital:'Digital', invest:'Inversiones', fx:'Moneda extranjera', crypto:'Cripto'};
+  const icons  = {cash:'💵', digital:'📱', invest:'📈', fx:'💱', crypto:'₿'};
+  const bgs    = {cash:'rgba(127,201,122,0.15)', digital:'rgba(124,168,247,0.15)', invest:'rgba(255,162,106,0.15)', fx:'rgba(255,210,100,0.15)', crypto:'rgba(247,147,26,0.15)'};
+
+  document.getElementById('pd-title').textContent = titles[type];
+  document.getElementById('pd-icon').textContent = icons[type];
+  document.getElementById('pd-icon').style.background = bgs[type];
+
+  renderPocketBody(type);
+  go('s-pocket-detail');
+}
+
+function renderPocketBody(type){
+  const body = document.getElementById('pd-body');
+  let total = 0;
+
+  if(type==='cash'){
+    const data = getWalletData();
+    total = data.cash;
+    body.innerHTML = `
+      <div class="field"><label class="label">Ajustar saldo manualmente</label>
+        <div style="display:flex;gap:8px;">
+          <div style="position:relative;flex:1;"><span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--accent-soft);font-weight:700;">$</span>
+          <input class="input" type="number" inputmode="numeric" placeholder="0" id="inp-cash-adj" style="padding-left:24px;"></div>
+          <button class="btn btn-green btn-sm" style="width:80px;" onclick="adjustCash()">Ajustar</button>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:18px 0 8px;">Movimientos en efectivo</p>
+      <div class="lwrap" id="pd-movs"></div>
+    `;
+    renderPocketMovements('cash');
+  }
+
+  else if(type==='digital'){
+    const accs = getAccounts('digital');
+    total = accs.reduce((s,a)=>s+a.total,0);
+    body.innerHTML = (accs.length ? accs.map((a,i)=>`
+      <div class="acc-card">
+        <div class="acc-card-header">
+          ${accountIconHTML(a, 26)}
+          <span class="acc-card-name">${esc(a.name)}</span>
+          <span class="acc-card-total w-val">$${fmt(a.total)}</span>
+        </div>
+        <div class="acc-card-actions">
+          <button class="acc-action-btn" onclick="editDigital(${i},'add')">＋ Ingreso</button>
+          <button class="acc-action-btn" onclick="editDigital(${i},'sub')">− Egreso</button>
+          <button class="acc-action-btn" onclick="editDigital(${i},'set')">✏️ Editar</button>
+          <button class="acc-action-btn" style="color:var(--red);" onclick="deleteAccount('digital',${i})">🗑</button>
+        </div>
+      </div>`).join('') : '<p style="font-size:12px;color:var(--text-faint);margin-bottom:8px;">Sin billeteras cargadas.</p>')
+      + '<button class="btn btn-ghost btn-sm" style="margin-top:6px;" onclick="showAddAccount(\'digital\')">＋ Agregar billetera</button>'
+      + '<p style="font-size:11px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:20px 0 8px;">Movimientos digitales</p>'
+      + '<div class="lwrap" id="pd-movs"></div>';
+    renderPocketMovements('digital');
+  }
+
+  else if(type==='invest'){
+    const accs = getAccounts('invest');
+    total = accs.reduce((s,a)=>s+a.total,0);
+    body.innerHTML = (accs.length ? accs.map((a,i)=>`
+      <div class="acc-card">
+        <div class="acc-card-header">
+          ${accountIconHTML(a, 26)}
+          <span class="acc-card-name">${esc(a.name)}</span>
+          <span class="acc-card-total w-val">$${fmt(a.total)}</span>
+        </div>
+        <div class="inv-breakdown">
+          <div class="inv-item"><div class="inv-item-label">Capital</div><div class="inv-item-val w-val">$${fmt(a.capital)}</div></div>
+          <div class="inv-item"><div class="inv-item-label">Intereses</div><div class="inv-item-val green w-val">$${fmt(a.interests)}</div></div>
+          <div class="inv-item"><div class="inv-item-label">Depósitos</div><div class="inv-item-val w-val">$${fmt(a.deposits)}</div></div>
+          <div class="inv-item"><div class="inv-item-label">Retiros</div><div class="inv-item-val orange w-val">$${fmt(a.withdrawals)}</div></div>
+        </div>
+        <div class="acc-card-actions">
+          <button class="acc-action-btn" onclick="investAction(${i},'interest')">📊 Interés</button>
+          <button class="acc-action-btn" onclick="investAction(${i},'deposit')">＋ Depósito</button>
+          <button class="acc-action-btn" onclick="investAction(${i},'withdraw')">− Retiro</button>
+          <button class="acc-action-btn" style="color:var(--red);" onclick="deleteAccount('invest',${i})">🗑</button>
+        </div>
+        ${a.history&&a.history.length?'<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px;">'
+          +a.history.slice(0,5).map((m,mi)=>`<div class="mov-mini">
+            <span class="mov-mini-desc">${esc(m.desc||'')} · ${fmtDate(m.date)}</span>
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span class="mov-mini-amt ${m.amount>=0?'pos':'neg'} w-val">${m.amount>=0?'+':''} $${fmt(Math.abs(m.amount))}</span>
+              <button class="edel" style="font-size:13px;" onclick="deleteAccountHistory('invest',${i},${mi})">✕</button>
+            </span>
+          </div>`).join('')+'</div>':''}
+      </div>`).join('') : '<p style="font-size:12px;color:var(--text-faint);margin-bottom:8px;">Sin inversiones cargadas.</p>')
+      + '<button class="btn btn-ghost btn-sm" style="margin-top:6px;" onclick="showAddAccount(\'invest\')">＋ Agregar inversión</button>';
+  }
+
+  else if(type==='fx'){
+    const accs = getAccounts('fx');
+    const totalARS = accs.reduce((s,a)=>s + a.amount*(fxRates[a.currency]||0), 0);
+    total = totalARS;
+    body.innerHTML = `<div class="fx-rate-tag">💱 USD blue: $${fmt(fxRates.usd)} · EUR: $${fmt(fxRates.eur)}</div>`
+    + (accs.length ? accs.map((a,i)=>{
+      const ars = a.amount * (fxRates[a.currency]||0);
+      const sym = a.currency==='usd' ? 'US$' : '€';
+      return `<div class="acc-card">
+        <div class="acc-card-header">
+          <span class="acc-card-icon">${a.currency==='usd'?'💵':'💶'}</span>
+          <span class="acc-card-name">${esc(a.name)} <span style="color:var(--text-faint);font-weight:500;">(${sym})</span></span>
+          <span class="acc-card-total w-val">${sym}${fmt(a.amount)}</span>
+        </div>
+        <p style="font-size:11px;color:var(--text-dim);margin-top:4px;">≈ $${fmt(ars)} ARS</p>
+        <div class="acc-card-actions">
+          <button class="acc-action-btn" onclick="editFx(${i},'add')">＋ Ingreso</button>
+          <button class="acc-action-btn" onclick="editFx(${i},'sub')">− Egreso</button>
+          <button class="acc-action-btn" style="color:var(--red);" onclick="deleteAccount('fx',${i})">🗑</button>
+        </div>
+        ${a.history&&a.history.length?'<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:9px;">'
+          +a.history.slice(0,5).map((m,mi)=>`<div class="mov-mini">
+            <span class="mov-mini-desc">${esc(m.desc||'')} · ${fmtDate(m.date)}</span>
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span class="mov-mini-amt ${m.amount>=0?'pos':'neg'} w-val">${m.amount>=0?'+':''} ${sym}${fmt(Math.abs(m.amount))}</span>
+              <button class="edel" style="font-size:13px;" onclick="deleteAccountHistory('fx',${i},${mi})">✕</button>
+            </span>
+          </div>`).join('')+'</div>':''}
+      </div>`;
+    }).join('') : '<p style="font-size:12px;color:var(--text-faint);margin-bottom:8px;">Sin moneda extranjera cargada.</p>')
+    + '<button class="btn btn-ghost btn-sm" style="margin-top:6px;" onclick="showAddAccount(\'fx\')">＋ Agregar moneda</button>';
+  }
+
+  else if(type==='crypto'){
+    const accs = getAccounts('crypto');
+    const usdRate = fxRates.usd || 0;
+    total = cryptoTotalARS();
+    const totalUsd = cryptoTotalUSD();
+
+    const priceTag = `<div class="fx-rate-tag">₿ BTC: US$${fmt(cryptoPrices.BTC||0)} · ETH: US$${fmt(cryptoPrices.ETH||0)} · USD: $${fmt(usdRate)}</div>`;
+    const summary = accs.length ? `<div style="background:var(--panel-strong);border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;justify-content:space-between;">
+        <div><p style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;">En dólares</p>
+        <p style="font-size:17px;font-weight:800;color:var(--accent-soft);" class="w-val">US$${fmt(totalUsd)}</p></div>
+        <div style="text-align:right;"><p style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;">En pesos</p>
+        <p style="font-size:17px;font-weight:800;color:var(--green);" class="w-val">$${fmt(total)}</p></div>
+      </div>` : '';
+
+    body.innerHTML = priceTag + summary + (accs.length ? accs.map((a,i)=>{
+      const priceUsd = cryptoPrices[a.symbol] || 0;
+      const valUsd = a.amount * priceUsd;
+      const valArs = valUsd * usdRate;
+      const meta = CRYPTOS.find(c=>c.sym===a.symbol);
+      return `<div class="acc-card">
+        <div class="acc-card-header">
+          ${walletBadgeSVG(meta?.color||'#3A4A5C', '#fff', a.symbol.slice(0,3), 26)}
+          <div style="flex:1;min-width:0;">
+            <p class="acc-card-name">${esc(a.symbol)} <span style="color:var(--text-faint);font-weight:500;font-size:11px;">${esc(a.wallet||'')}</span></p>
+            <p style="font-size:11px;color:var(--text-dim);">${a.amount} ${esc(a.symbol)} · US$${fmt(priceUsd)} c/u</p>
+          </div>
+          <div style="text-align:right;">
+            <p class="acc-card-total w-val">$${fmt(valArs)}</p>
+            <p style="font-size:11px;color:var(--text-dim);" class="w-val">US$${fmt(valUsd)}</p>
+          </div>
+        </div>
+        <div class="acc-card-actions">
+          <button class="acc-action-btn" onclick="editCrypto(${i},'add')">＋ Compra</button>
+          <button class="acc-action-btn" onclick="editCrypto(${i},'sub')">− Venta</button>
+          <button class="acc-action-btn" onclick="editCrypto(${i},'set')">✏️ Editar</button>
+          <button class="acc-action-btn" style="color:var(--red);" onclick="deleteAccount('crypto',${i})">🗑</button>
+        </div>
+      </div>`;
+    }).join('') : '<p style="font-size:12px;color:var(--text-faint);margin-bottom:8px;">Sin tenencias cargadas.</p>')
+    + '<button class="btn btn-ghost btn-sm" style="margin-top:6px;" onclick="showAddAccount(\'crypto\')">＋ Agregar cripto</button>';
+  }
+
+  document.getElementById('pd-total').textContent = '$'+fmt(total);
+  document.getElementById('pd-total').dataset.real = '$'+fmt(total);
+  if(!valuesVisible) applyVisibilityWallet();
+}
+
+// Renderiza los movimientos de un bolsillo con opción de editar/borrar
+function renderPocketMovements(type){
+  const el = document.getElementById('pd-movs');
+  if(!el) return;
+
+  const all = getExpenses();
+  let movs = [];
+
+  if(type==='cash'){
+    movs = all.filter(e=>e.source==='cash');
+  } else if(type==='digital'){
+    movs = all.filter(e=>e.source && e.source.startsWith('digital:'));
+  }
+
+  if(!movs.length){
+    el.innerHTML = '<div class="empty-state" style="border:none;padding:22px;">Sin movimientos aún</div>';
+    return;
+  }
+
+  el.innerHTML = movs.slice(0,20).map(e=>renderMovRow(e)).join('');
+  if(!valuesVisible) applyVisibility();
+}
+
+// Borra una entrada del historial interno de una cuenta (inversión / moneda)
+function deleteAccountHistory(type, accIdx, movIdx){
+  askConfirm('¿Eliminar este movimiento del historial?', ()=>{
+    const accs = getAccounts(type);
+    const a = accs[accIdx];
+    if(!a || !a.history || !a.history[movIdx]) return;
+    const m = a.history[movIdx];
+
+    // Revertir el efecto del movimiento
+    if(type==='invest'){
+      if(m.desc==='Interés ganado'){ a.interests -= m.amount; a.total -= m.amount; }
+      else if(m.desc==='Depósito'){ a.deposits -= m.amount; a.capital -= m.amount; a.total -= m.amount; }
+      else if(m.desc==='Retiro'){ a.withdrawals -= Math.abs(m.amount); a.total += Math.abs(m.amount); }
+      else { a.total -= m.amount; }
+    } else if(type==='fx'){
+      a.amount -= m.amount;
+    }
+
+    a.history.splice(movIdx,1);
+    accs[accIdx] = a;
+    saveAccounts(type, accs);
+    initWallet();
+    renderPocketBody(type);
+    toast('Movimiento eliminado');
+  });
+}
+
+function adjustCash(){
+  const val = parseFloat(document.getElementById('inp-cash-adj').value);
+  if(isNaN(val)||val<0){ toast('Ingresá un valor válido'); return; }
+  const data = getWalletData();
+  const diff = val - data.cash;
+  data.cash = val;
+  data.cashHistory = data.cashHistory||[];
+  data.cashHistory.unshift({date:new Date().toISOString(), desc:'Ajuste manual', amount:diff});
+  localStorage.setItem('nmclb_wallet_data', JSON.stringify(data));
+  initWallet(); loadDashboardData();
+  renderPocketBody('cash');
+  toast('✓ Efectivo actualizado');
+}
+
+// ── DIGITAL ───────────────────────────────────────────────────────────────
+// ── Helpers genéricos: modal de monto y confirmación (reemplazan prompt/confirm) ──
+let amtModalCallback = null;
+function askAmount(title, label, callback){
+  document.getElementById('amt-modal-title').textContent = title;
+  document.getElementById('amt-modal-label').textContent = label;
+  document.getElementById('amt-modal-input').value = '';
+  amtModalCallback = callback;
+  document.getElementById('modal-amt').style.display='flex';
+  setTimeout(()=>document.getElementById('amt-modal-input').focus(), 250);
+}
+function confirmAmtModal(){
+  const val = parseFloat(document.getElementById('amt-modal-input').value);
+  if(isNaN(val)){ toast('Ingresá un valor válido'); return; }
+  closeModal('modal-amt');
+  if(amtModalCallback) amtModalCallback(val);
+}
+
+let txtModalCallback = null;
+function askText(title, placeholder, callback){
+  document.getElementById('txt-modal-title').textContent = title;
+  document.getElementById('txt-modal-input').placeholder = placeholder||'';
+  document.getElementById('txt-modal-input').value = '';
+  txtModalCallback = callback;
+  document.getElementById('modal-txt').style.display='flex';
+  setTimeout(()=>document.getElementById('txt-modal-input').focus(), 250);
+}
+function confirmTxtModal(){
+  const val = document.getElementById('txt-modal-input').value.trim();
+  if(!val){ toast('Escribí un nombre'); return; }
+  closeModal('modal-txt');
+  if(txtModalCallback) txtModalCallback(val);
+}
+
+let confirmYesCallback = null;
+function askConfirm(text, callback){
+  document.getElementById('confirm-modal-text').textContent = text;
+  confirmYesCallback = callback;
+  document.getElementById('modal-confirm').style.display='flex';
+}
+function confirmYes(){
+  closeModal('modal-confirm');
+  if(confirmYesCallback) confirmYesCallback();
+}
+
+// ── Reconocimiento de billeteras conocidas (ícono + color) ───────────────
+const KNOWN_WALLETS = [
+  // Billeteras virtuales
+  {k:'mercado pago',  m:['mercado pago','mercadopago','mp'],           bg:'#00A9E0', fg:'#fff', ini:'MP'},
+  {k:'uala',          m:['ualá','uala'],                                bg:'#1F3D8C', fg:'#fff', ini:'U'},
+  {k:'naranja x',     m:['naranja x','naranjax','nx'],                  bg:'#FF5F17', fg:'#fff', ini:'NX'},
+  {k:'prex',          m:['prex'],                                       bg:'#6B2FBF', fg:'#fff', ini:'P'},
+  {k:'belo',          m:['belo'],                                       bg:'#5B2EC4', fg:'#3FE0A0', ini:'B'},
+  {k:'modo',          m:['modo'],                                       bg:'#12B76A', fg:'#fff', ini:'M'},
+  {k:'personal pay',  m:['personal pay','personalpay'],                 bg:'#E6007E', fg:'#fff', ini:'PP'},
+  {k:'claro pay',     m:['claro pay','claropay'],                       bg:'#DA291C', fg:'#fff', ini:'CP'},
+  {k:'cuenta dni',    m:['cuenta dni','cuentadni'],                     bg:'#00A650', fg:'#fff', ini:'DNI'},
+  {k:'brubank',       m:['brubank','bru'],                              bg:'#7F3FBF', fg:'#fff', ini:'BR'},
+  {k:'lemon',         m:['lemon','lemon cash'],                         bg:'#0BD37F', fg:'#0C1A24', ini:'L'},
+  {k:'santander',     m:['santander','banco santander'],                bg:'#EC0000', fg:'#fff', ini:'S'},
+  {k:'galicia',       m:['galicia','banco galicia'],                    bg:'#F47920', fg:'#fff', ini:'G'},
+  {k:'bbva',          m:['bbva','frances'],                             bg:'#004481', fg:'#fff', ini:'BB'},
+  {k:'nacion',        m:['nacion','bna','banco nacion'],                bg:'#0B5C3F', fg:'#fff', ini:'BN'},
+  {k:'macro',         m:['macro','banco macro'],                        bg:'#00579F', fg:'#fff', ini:'MA'},
+  {k:'reba',          m:['reba','rebanking'],                           bg:'#00D563', fg:'#0C1A24', ini:'R'},
+  {k:'appa',          m:['appa'],                                       bg:'#3FBF9A', fg:'#fff', ini:'!'},
+
+  // Inversiones / brokers / cripto
+  {k:'cocos',         m:['cocos','cocos capital'],                      bg:'#0C4DA2', fg:'#fff', ini:'C'},
+  {k:'balanz',        m:['balanz'],                                     bg:'#1B2E5C', fg:'#fff', ini:'BZ'},
+  {k:'inviu',         m:['inviu'],                                      bg:'#0F3D30', fg:'#3FE0A0', ini:'I'},
+  {k:'binance',       m:['binance'],                                    bg:'#181A20', fg:'#F0B90B', ini:'B'},
+  {k:'iol',           m:['iol','invertir online'],                      bg:'#004E9A', fg:'#fff', ini:'IOL'},
+  {k:'bull market',   m:['bull market','bullmarket'],                   bg:'#0A2540', fg:'#fff', ini:'BM'},
+  {k:'ppi',           m:['ppi','portfolio personal'],                   bg:'#00A19B', fg:'#fff', ini:'PPI'},
+  {k:'ripio',         m:['ripio'],                                      bg:'#1F1F1F', fg:'#00E599', ini:'RP'},
+  {k:'buenbit',       m:['buenbit'],                                    bg:'#0057FF', fg:'#fff', ini:'BB'},
+  {k:'satoshitango',  m:['satoshitango','satoshi tango'],               bg:'#F7931A', fg:'#fff', ini:'ST'},
+  {k:'plazo fijo',    m:['plazo fijo','plazofijo','pf'],                bg:'#2E7D4F', fg:'#fff', ini:'PF'},
+  {k:'fci',           m:['fci','fondo comun'],                          bg:'#3B5BA5', fg:'#fff', ini:'FCI'},
+];
+
+// Genera un ícono SVG propio (no usa logos de marca)
+function walletBadgeSVG(bg, fg, ini, size){
+  const s = size || 26;
+  const fs = ini.length>2 ? s*0.34 : ini.length>1 ? s*0.40 : s*0.52;
+  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" style="flex-shrink:0;border-radius:${s*0.28}px;">
+    <rect width="${s}" height="${s}" rx="${s*0.28}" fill="${bg}"/>
+    <text x="50%" y="50%" dy="0.35em" text-anchor="middle"
+      font-family="'M PLUS Rounded 1c',sans-serif" font-weight="800"
+      font-size="${fs}" fill="${fg}">${ini}</text>
+  </svg>`;
+}
+
+function findKnownWallet(name){
+  const n = String(name||'').toLowerCase().trim();
+  if(!n) return null;
+  return KNOWN_WALLETS.find(w => w.m.some(x => n.includes(x))) || null;
+}
+
+// Devuelve el HTML del ícono de una cuenta (SVG propio, logo del usuario o inicial)
+function accountIconHTML(acc, size){
+  const s = size || 26;
+  if(acc.logoUrl){
+    return `<img src="${esc(acc.logoUrl)}" style="width:${s}px;height:${s}px;border-radius:${s*0.28}px;object-fit:cover;flex-shrink:0;background:#fff;">`;
+  }
+  if(acc.badge){
+    return walletBadgeSVG(acc.badge.bg, acc.badge.fg, acc.badge.ini, s);
+  }
+  const known = findKnownWallet(acc.name);
+  if(known) return walletBadgeSVG(known.bg, known.fg, known.ini, s);
+  // Genérico: inicial sobre gris
+  const ini = String(acc.name||'?').trim().charAt(0).toUpperCase();
+  return walletBadgeSVG('#3A4A5C', '#fff', ini, s);
+}
+
+function editDigital(idx, mode){
+  const accs = getAccounts('digital');
+  const a = accs[idx];
+  const labels = {add:'Ingreso en '+a.name, sub:'Egreso en '+a.name, set:'Editar saldo de '+a.name};
+  askAmount(labels[mode], 'Monto ($)', (val)=>{
+    const accs2 = getAccounts('digital');
+    const a2 = accs2[idx];
+    a2.history = a2.history||[];
+    if(mode==='add'){ a2.total += val; a2.history.unshift({date:new Date().toISOString(),desc:'Ingreso',amount:val}); }
+    else if(mode==='sub'){ a2.total = Math.max(0,a2.total-val); a2.history.unshift({date:new Date().toISOString(),desc:'Egreso',amount:-val}); }
+    else { const diff=val-a2.total; a2.total=val; a2.history.unshift({date:new Date().toISOString(),desc:'Ajuste manual',amount:diff}); }
+    accs2[idx]=a2; saveAccounts('digital',accs2);
+    initWallet(); loadDashboardData();
+    renderPocketBody('digital');
+    toast('✓ '+a2.name+' actualizada');
+  });
+}
+
+function deductDigital(accountName, amount, desc){
+  const accs = getAccounts('digital');
+  const idx = accs.findIndex(a=>a.name===accountName);
+  if(idx<0) return;
+  accs[idx].total = Math.max(0, accs[idx].total - amount);
+  accs[idx].history = accs[idx].history||[];
+  accs[idx].history.unshift({date:new Date().toISOString(), desc:desc||'Gasto', amount:-amount});
+  saveAccounts('digital', accs);
+}
+
+// ── INVERSIONES ───────────────────────────────────────────────────────────
+function investAction(idx, action){
+  const accs = getAccounts('invest');
+  const a = accs[idx];
+  const labels = {interest:'Intereses ganados en '+a.name, deposit:'Depósito en '+a.name, withdraw:'Retiro de '+a.name};
+  askAmount(labels[action], 'Monto ($)', (val)=>{
+    if(val<=0){ toast('Ingresá un valor mayor a cero'); return; }
+    const accs2 = getAccounts('invest');
+    const a2 = accs2[idx];
+    a2.history = a2.history||[];
+    if(action==='interest'){ a2.interests += val; a2.total += val; a2.history.unshift({date:new Date().toISOString(),desc:'Interés ganado',amount:val}); }
+    else if(action==='deposit'){ a2.deposits += val; a2.capital += val; a2.total += val; a2.history.unshift({date:new Date().toISOString(),desc:'Depósito',amount:val}); }
+    else { a2.withdrawals += val; a2.total = Math.max(0,a2.total-val); a2.history.unshift({date:new Date().toISOString(),desc:'Retiro',amount:-val}); }
+    accs2[idx]=a2; saveAccounts('invest',accs2);
+    initWallet(); loadDashboardData();
+    renderPocketBody('invest');
+    toast('✓ Registrado en '+a2.name);
+  });
+}
+
+// ── MONEDA EXTRANJERA ─────────────────────────────────────────────────────
+function editFx(idx, mode){
+  const accs = getAccounts('fx');
+  const a = accs[idx];
+  const symbol = a.currency==='usd'?'US$':'€';
+  askAmount((mode==='add'?'Ingreso':'Egreso')+' en '+a.name, 'Monto ('+symbol+')', (val)=>{
+    if(val<=0){ toast('Ingresá un valor mayor a cero'); return; }
+    const accs2 = getAccounts('fx');
+    const a2 = accs2[idx];
+    a2.history = a2.history||[];
+    if(mode==='add'){ a2.amount += val; a2.history.unshift({date:new Date().toISOString(),desc:'Ingreso',amount:val}); }
+    else { a2.amount = Math.max(0,a2.amount-val); a2.history.unshift({date:new Date().toISOString(),desc:'Egreso',amount:-val}); }
+    accs2[idx]=a2; saveAccounts('fx',accs2);
+    initWallet(); loadDashboardData();
+    renderPocketBody('fx');
+    toast('✓ Actualizado');
+  });
+}
+
+// ── AGREGAR CUENTA (digital / invest / fx) ───────────────────────────────
+const DIG_ICONS = ['📱','🟢','🟠','🔵','💳','🏦','🟣','⚡'];
+const INV_ICONS = ['📈','💰','🪙','📊','🏠','⭐','🔷','💎'];
+
+function showAddAccount(type){
+  if(type==='crypto'){ showAddCrypto(); return; }
+  const modal = document.getElementById('modal-account');
+  const titles = {digital:'Nueva billetera', invest:'Nueva inversión', fx:'Nueva moneda extranjera'};
+  document.getElementById('modal-title').textContent = titles[type];
+
+  if(type==='fx'){
+    document.getElementById('modal-body').innerHTML = `
+      <div class="field"><label class="label">Moneda</label>
+        <select class="input select" id="ma-currency">
+          <option value="usd">💵 Dólar (USD)</option>
+          <option value="eur">💶 Euro (EUR)</option>
+        </select></div>
+      <div class="field"><label class="label">Nombre / referencia</label>
+        <input class="input" id="ma-name" placeholder="Ej: Ahorro en dólares"></div>
+      <div class="field"><label class="label">Monto</label>
+        <input class="input" type="number" inputmode="decimal" id="ma-amount" placeholder="0"></div>
+      <div class="stack" style="margin-top:4px;">
+        <button class="btn btn-accent" onclick="confirmAddAccount('fx')">Agregar</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-account')">Cancelar</button>
+      </div>`;
+    modal.style.display='flex';
+    return;
+  }
+
+  const isInvest = type==='invest';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="field">
+      <label class="label">${isInvest?'Nombre de la inversión':'Nombre de la billetera'}</label>
+      <input class="input" id="ma-name" placeholder="${isInvest?'Ej: Cocos, Balanz, Binance...':'Ej: Mercado Pago, Ualá, Prex...'}"
+             oninput="previewAccountIcon('${type}')" autocomplete="off">
+    </div>
+
+    <!-- Preview del ícono -->
+    <div id="ma-preview" style="display:none;align-items:center;gap:11px;background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:11px 13px;margin-bottom:14px;">
+      <div id="ma-preview-icon"></div>
+      <div style="flex:1;">
+        <p style="font-size:12px;font-weight:700;" id="ma-preview-title">Ícono asignado</p>
+        <p style="font-size:11px;color:var(--text-dim);" id="ma-preview-sub"></p>
+      </div>
+    </div>
+
+    <!-- Campo de logo, solo si no la reconoce -->
+    <div class="field" id="ma-logo-field" style="display:none;">
+      <label class="label">Imagen del logo</label>
+      <input class="input" id="ma-logo" placeholder="Pegá el link de una imagen" oninput="previewAccountIcon('${type}')">
+      <p style="font-size:11px;color:var(--text-faint);margin-top:5px;">No la tenemos registrada. Podés pegar el link de su logo, o dejarlo vacío y usamos la inicial.</p>
+    </div>
+
+    <div class="field">
+      <label class="label">${isInvest?'Capital inicial ($)':'Saldo actual ($)'}</label>
+      <div style="position:relative;">
+        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--accent-soft);font-weight:700;">$</span>
+        <input class="input" type="number" inputmode="numeric" id="ma-amount" placeholder="0" style="padding-left:24px;">
+      </div>
+    </div>
+
+    ${isInvest?`<div class="field">
+      <label class="label">Intereses acumulados hasta hoy ($)</label>
+      <div style="position:relative;">
+        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--accent-soft);font-weight:700;">$</span>
+        <input class="input" type="number" inputmode="numeric" id="ma-interest" placeholder="0" style="padding-left:24px;">
+      </div></div>`:''}
+
+    <div class="stack" style="margin-top:4px;">
+      <button class="btn btn-accent" onclick="confirmAddAccount('${type}')">Agregar</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-account')">Cancelar</button>
+    </div>`;
+
+  modal.style.display='flex';
+}
+
+function showAddCrypto(){
+  const digitalAccs = getAccounts('digital');
+  const walletOpts = ['Binance','Lemon','Belo','Ripio','Buenbit','Cocos Crypto','Wallet propia','Otra']
+    .concat(digitalAccs.map(a=>a.name))
+    .filter((v,i,s)=>s.indexOf(v)===i);
+
+  document.getElementById('modal-title').textContent = 'Agregar cripto';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="field">
+      <label class="label">Moneda</label>
+      <select class="input select" id="ma-crypto" onchange="previewCryptoValue()">
+        ${CRYPTOS.map(c=>`<option value="${c.sym}">${c.sym} — ${c.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field">
+      <label class="label">Cantidad</label>
+      <input class="input" type="number" inputmode="decimal" step="any" id="ma-crypto-amount" placeholder="Ej: 0.015" oninput="previewCryptoValue()">
+    </div>
+    <div id="crypto-preview" style="display:none;background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:12px 14px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;">
+        <div><p style="font-size:10px;color:var(--text-dim);text-transform:uppercase;">Equivale a</p>
+        <p style="font-size:16px;font-weight:800;color:var(--accent-soft);" id="cp-usd">US$0</p></div>
+        <div style="text-align:right;"><p style="font-size:10px;color:var(--text-dim);text-transform:uppercase;">En pesos</p>
+        <p style="font-size:16px;font-weight:800;color:var(--green);" id="cp-ars">$0</p></div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">¿Dónde la tenés?</label>
+      <select class="input select" id="ma-crypto-wallet">
+        ${walletOpts.map(w=>`<option value="${esc(w)}">${esc(w)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="stack" style="margin-top:4px;">
+      <button class="btn btn-accent" onclick="confirmAddCrypto()">Agregar</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-account')">Cancelar</button>
+    </div>`;
+  document.getElementById('modal-account').style.display='flex';
+  previewCryptoValue();
+}
+
+function previewCryptoValue(){
+  const sym = document.getElementById('ma-crypto')?.value;
+  const amt = parseFloat(document.getElementById('ma-crypto-amount')?.value)||0;
+  const prev = document.getElementById('crypto-preview');
+  if(!prev) return;
+  if(!amt){ prev.style.display='none'; return; }
+  const usd = amt * (cryptoPrices[sym]||0);
+  const ars = usd * (fxRates.usd||0);
+  prev.style.display='block';
+  document.getElementById('cp-usd').textContent = 'US$'+fmt(usd);
+  document.getElementById('cp-ars').textContent = '$'+fmt(ars);
+}
+
+function confirmAddCrypto(){
+  const symbol = document.getElementById('ma-crypto').value;
+  const amount = parseFloat(document.getElementById('ma-crypto-amount').value);
+  const wallet = document.getElementById('ma-crypto-wallet').value;
+  if(!amount||amount<=0){ toast('Ingresá una cantidad válida'); return; }
+  const accs = getAccounts('crypto');
+  accs.push({symbol, amount, wallet, history:[{date:new Date().toISOString(),desc:'Carga inicial',amount}]});
+  saveAccounts('crypto', accs);
+  closeModal('modal-account');
+  initWallet();
+  renderPocketBody('crypto');
+  toast('✓ '+amount+' '+symbol+' agregado');
+}
+
+function editCrypto(idx, mode){
+  const accs = getAccounts('crypto');
+  const a = accs[idx];
+  const labels = {add:'Compra de '+a.symbol, sub:'Venta de '+a.symbol, set:'Editar cantidad de '+a.symbol};
+  askAmount(labels[mode], 'Cantidad ('+a.symbol+')', (val)=>{
+    const accs2 = getAccounts('crypto');
+    const a2 = accs2[idx];
+    a2.history = a2.history||[];
+    if(mode==='add'){ a2.amount += val; a2.history.unshift({date:new Date().toISOString(),desc:'Compra',amount:val}); }
+    else if(mode==='sub'){ a2.amount = Math.max(0, a2.amount-val); a2.history.unshift({date:new Date().toISOString(),desc:'Venta',amount:-val}); }
+    else { a2.amount = val; a2.history.unshift({date:new Date().toISOString(),desc:'Ajuste',amount:0}); }
+    accs2[idx]=a2; saveAccounts('crypto',accs2);
+    initWallet(); renderPocketBody('crypto');
+    toast('✓ Actualizado');
+  });
+}
+
+function previewAccountIcon(type){
+  const name = document.getElementById('ma-name').value.trim();
+  const prev = document.getElementById('ma-preview');
+  const logoField = document.getElementById('ma-logo-field');
+  if(!name){ prev.style.display='none'; logoField.style.display='none'; return; }
+
+  const known = findKnownWallet(name);
+  const logoUrl = document.getElementById('ma-logo')?.value.trim();
+
+  prev.style.display='flex';
+  const iconEl = document.getElementById('ma-preview-icon');
+
+  if(known){
+    logoField.style.display='none';
+    iconEl.innerHTML = walletBadgeSVG(known.bg, known.fg, known.ini, 38);
+    document.getElementById('ma-preview-title').textContent = 'Ícono asignado ✓';
+    document.getElementById('ma-preview-sub').textContent = 'Reconocimos la plataforma';
+  } else {
+    logoField.style.display='block';
+    if(logoUrl){
+      iconEl.innerHTML = `<img src="${esc(logoUrl)}" style="width:38px;height:38px;border-radius:11px;object-fit:cover;background:#fff;">`;
+      document.getElementById('ma-preview-title').textContent = 'Logo cargado ✓';
+      document.getElementById('ma-preview-sub').textContent = 'Usaremos esta imagen';
+    } else {
+      iconEl.innerHTML = walletBadgeSVG('#3A4A5C', '#fff', name.charAt(0).toUpperCase(), 38);
+      document.getElementById('ma-preview-title').textContent = 'Ícono genérico';
+      document.getElementById('ma-preview-sub').textContent = 'Podés pegar un logo abajo';
+    }
+  }
+}
+
+function confirmAddAccount(type){
+  const name   = document.getElementById('ma-name').value.trim();
+  const amount = parseFloat(document.getElementById('ma-amount').value)||0;
+  if(!name){ toast('Ponele un nombre'); return; }
+
+  if(type==='fx'){
+    const currency = document.getElementById('ma-currency').value;
+    const accs = getAccounts('fx');
+    accs.push({name, currency, amount, history:[]});
+    saveAccounts('fx', accs);
+  } else if(type==='invest'){
+    const interests = parseFloat(document.getElementById('ma-interest')?.value)||0;
+    const known = findKnownWallet(name);
+    const logoUrl = document.getElementById('ma-logo')?.value.trim();
+    const accs = getAccounts('invest');
+    accs.push({
+      name,
+      badge: known ? {bg:known.bg, fg:known.fg, ini:known.ini} : null,
+      logoUrl: logoUrl || null,
+      capital:amount, interests, deposits:0, withdrawals:0,
+      total:amount+interests, history:[]
+    });
+    saveAccounts('invest', accs);
+  } else {
+    const logoUrl = document.getElementById('ma-logo')?.value.trim();
+    const known = findKnownWallet(name);
+    const accs = getAccounts('digital');
+    accs.push({
+      name,
+      badge: known ? {bg:known.bg, fg:known.fg, ini:known.ini} : null,
+      logoUrl: logoUrl || null,
+      total: amount,
+      history: []
+    });
+    saveAccounts('digital', accs);
+  }
+
+  closeModal('modal-account');
+  initWallet(); loadDashboardData();
+  renderPocketBody(type);
+  toast('✓ '+name+' agregada');
+}
+
+function deleteAccount(type, idx){
+  askConfirm('¿Eliminar esta cuenta? Esta acción no se puede deshacer.', ()=>{
+    const accs = getAccounts(type);
+    accs.splice(idx,1);
+    saveAccounts(type, accs);
+    initWallet(); loadDashboardData();
+    renderPocketBody(type);
+    toast('Eliminada');
+  });
+}
+
+function closeModal(id){ document.getElementById(id).style.display='none'; }
+
+// ── MODAL INGRESO / EGRESO (completo) ────────────────────────────────────
+let movType = 'income';
+let selMovCat = 'otro';
+let selMovCurrency = 'ars';
+
+function openMovModal(type){
+  movType = type;
+  selMovCat = 'otro';
+  selMovCurrency = 'ars';
+  const modal = document.getElementById('modal-mov');
+  document.getElementById('mov-modal-title').textContent = type==='income' ? '↓ Registrar ingreso' : '↑ Registrar egreso';
+
+  const catPickerHtml = type==='expense' ? `
+    <div class="field">
+      <label class="label">Categoría</label>
+      <div class="cats" id="mm-catlist"></div>
+    </div>` : '';
+
+  document.getElementById('mov-modal-body').innerHTML = `
+    <!-- Dictado por voz -->
+    <button class="voice-cta" onclick="startVoiceInput('mm')" id="mm-voice-cta">
+      <span style="font-size:20px;" id="mm-mic">🎙️</span>
+      <div style="flex:1;text-align:left;">
+        <p style="font-size:13px;font-weight:700;">Cargar por voz</p>
+        <p style="font-size:11px;color:var(--text-dim);">Ej: "quince mil supermercado con Mercado Pago"</p>
+      </div>
+    </button>
+
+    <div class="field">
+      <label class="label">Monto</label>
+      <div style="display:flex;gap:8px;">
+        <div style="position:relative;flex:1;">
+          <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--accent-soft);font-weight:700;" id="mm-cursym">$</span>
+          <input class="input" type="number" inputmode="decimal" id="mm-amount" placeholder="0" style="padding-left:26px;font-weight:700;font-size:18px;" oninput="updateMovSummary()">
+        </div>
+      </div>
+      <div class="seg-mini" style="margin-top:8px;margin-bottom:0;">
+        <button type="button" class="on" id="cur-ars" onclick="selectMovCurrency('ars')">$ Pesos</button>
+        <button type="button" id="cur-usd" onclick="selectMovCurrency('usd')">US$ Dólar</button>
+        <button type="button" id="cur-eur" onclick="selectMovCurrency('eur')">€ Euro</button>
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:6px;display:none;" id="mm-conversion"></p>
+    </div>
+
+    <div class="field">
+      <label class="label">Descripción</label>
+      <input class="input" id="mm-desc" placeholder="${type==='income'?'Ej: sueldo, freelance...':'Ej: supermercado, nafta...'}" oninput="updateMovSummary()">
+    </div>
+
+    ${catPickerHtml}
+
+    <div class="field">
+      <label class="label">${type==='income'?'¿A dónde entra?':'¿De dónde sale?'}</label>
+      <select class="input select" id="mm-dest" onchange="updateMovSummary()"></select>
+    </div>
+
+    <!-- Resumen en vivo -->
+    <div class="mov-summary" id="mm-summary">
+      <p style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Resumen</p>
+      <p style="font-size:14px;font-weight:600;line-height:1.5;" id="mm-summary-text">Completá los datos…</p>
+    </div>
+
+    <div class="stack" style="margin-top:14px;">
+      <button class="btn ${type==='income'?'btn-green':'btn-accent'}" onclick="confirmMovement()">${type==='income'?'✓ Confirmar ingreso':'✓ Confirmar egreso'}</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-mov')">Cancelar</button>
+    </div>
+  `;
+
+  if(type==='expense'){
+    document.getElementById('mm-catlist').innerHTML =
+      CATS.map(c=>`<button type="button" class="cbt ${c.id===selMovCat?'sel':''}" onclick="selectMovCat('${c.id}')">${c.i} ${c.l}</button>`).join('');
+  }
+
+  buildMovDestOptions();
+  updateMovSummary();
+  modal.style.display='flex';
+}
+
+function buildMovDestOptions(){
+  const sel = document.getElementById('mm-dest');
+  if(!sel) return;
+  const digitalAccs = getAccounts('digital');
+  const fxAccs      = getAccounts('fx');
+
+  let html = '<optgroup label="Efectivo"><option value="cash">💵 Efectivo (pesos)</option></optgroup>';
+
+  if(digitalAccs.length){
+    html += '<optgroup label="Billeteras digitales">'
+      + digitalAccs.map(a=>`<option value="digital:${esc(a.name)}">${esc(a.name)}</option>`).join('')
+      + '</optgroup>';
+  }
+
+  if(selMovCurrency!=='ars' && fxAccs.length){
+    const matching = fxAccs.filter(a=>a.currency===selMovCurrency);
+    if(matching.length){
+      html += `<optgroup label="Cuentas en ${selMovCurrency.toUpperCase()}">`
+        + matching.map(a=>`<option value="fx:${esc(a.name)}">${a.currency==='usd'?'💵':'💶'} ${esc(a.name)}</option>`).join('')
+        + '</optgroup>';
+    }
+  }
+
+  const prev = sel.value;
+  sel.innerHTML = html;
+  if([...sel.options].some(o=>o.value===prev)) sel.value = prev;
+}
+
+function selectMovCurrency(cur){
+  selMovCurrency = cur;
+  ['ars','usd','eur'].forEach(c=>{
+    const b = document.getElementById('cur-'+c);
+    if(b) b.classList.toggle('on', c===cur);
+  });
+  const sym = cur==='ars' ? '$' : cur==='usd' ? 'US$' : '€';
+  const symEl = document.getElementById('mm-cursym');
+  if(symEl){ symEl.textContent = sym; symEl.style.fontSize = cur==='ars' ? '' : '13px'; }
+  buildMovDestOptions();
+  updateMovSummary();
+}
+
+function selectMovCat(id){
+  selMovCat = id;
+  document.querySelectorAll('#mm-catlist .cbt').forEach((b,i)=>b.classList.toggle('sel', CATS[i].id===id));
+  updateMovSummary();
+}
+
+function updateMovSummary(){
+  const amtEl  = document.getElementById('mm-amount');
+  const descEl = document.getElementById('mm-desc');
+  const destEl = document.getElementById('mm-dest');
+  const sumEl  = document.getElementById('mm-summary-text');
+  const convEl = document.getElementById('mm-conversion');
+  if(!amtEl||!sumEl) return;
+
+  const amount = parseFloat(amtEl.value)||0;
+  const desc   = descEl.value.trim();
+  const dest   = destEl.value;
+  const sym    = selMovCurrency==='ars' ? '$' : selMovCurrency==='usd' ? 'US$' : '€';
+
+  // Conversión a pesos si es moneda extranjera
+  if(selMovCurrency!=='ars' && amount>0 && fxRates[selMovCurrency]){
+    const ars = amount * fxRates[selMovCurrency];
+    convEl.textContent = `≈ $${fmt(ars)} ARS (cotización ${sym}${fmt(fxRates[selMovCurrency])})`;
+    convEl.style.display='block';
+  } else if(convEl){
+    convEl.style.display='none';
+  }
+
+  if(!amount){ sumEl.textContent = 'Completá los datos…'; return; }
+
+  const destLabel = destEl.options[destEl.selectedIndex]?.text || '';
+  const verb = movType==='income' ? 'Entran' : 'Salen';
+  const prep = movType==='income' ? 'a' : 'de';
+  const catObj = CATS.find(c=>c.id===selMovCat);
+  const catTxt = movType==='expense' ? ` · ${catObj.i} ${catObj.l}` : '';
+
+  sumEl.innerHTML = `<strong style="color:${movType==='income'?'var(--green)':'var(--accent-soft)'}">${verb} ${sym}${fmt(amount)}</strong> ${prep} <strong>${esc(destLabel)}</strong>${desc?`<br><span style="color:var(--text-dim);">"${esc(desc)}"</span>`:''}${catTxt}`;
+}
+
+function confirmMovement(){
+  const dest   = document.getElementById('mm-dest').value;
+  const desc   = document.getElementById('mm-desc').value.trim() || (movType==='income'?'Ingreso':'Egreso');
+  const amount = parseFloat(document.getElementById('mm-amount').value);
+  if(!amount||amount<=0){ toast('Ingresá un monto válido'); return; }
+
+  if(movType==='expense' && selMovCat==='compartido'){
+    askText('¿Con quién compartís este gasto?', 'Ej: Jesica', (sharedWith)=>{
+      finalizeMovement(dest, desc, amount, sharedWith);
+    });
+  } else {
+    finalizeMovement(dest, desc, amount, null);
+  }
+}
+
+function finalizeMovement(dest, desc, amount, sharedWith){
+  const isIncome = movType==='income';
+  const signed   = isIncome ? amount : -amount;
+  const isFx     = selMovCurrency!=='ars';
+  const amountARS = isFx ? amount * (fxRates[selMovCurrency]||0) : amount;
+  const deltaARS  = isIncome ? amountARS : -amountARS;
+
+  if(dest==='cash'){
+    const data = getWalletData();
+    data.cash = Math.max(0, data.cash + deltaARS);
+    data.cashHistory = data.cashHistory||[];
+    data.cashHistory.unshift({date:new Date().toISOString(), desc, amount:deltaARS});
+    localStorage.setItem('nmclb_wallet_data', JSON.stringify(data));
+  }
+  else if(dest.startsWith('digital:')){
+    const accName = dest.slice(8);
+    const accs = getAccounts('digital');
+    const idx = accs.findIndex(a=>a.name===accName);
+    if(idx>=0){
+      accs[idx].total = Math.max(0, accs[idx].total + deltaARS);
+      accs[idx].history = accs[idx].history||[];
+      accs[idx].history.unshift({date:new Date().toISOString(), desc, amount:deltaARS});
+      saveAccounts('digital', accs);
+    }
+  }
+  else if(dest.startsWith('fx:')){
+    const accName = dest.slice(3);
+    const accs = getAccounts('fx');
+    const idx = accs.findIndex(a=>a.name===accName);
+    if(idx>=0){
+      accs[idx].amount = Math.max(0, accs[idx].amount + signed);
+      accs[idx].history = accs[idx].history||[];
+      accs[idx].history.unshift({date:new Date().toISOString(), desc, amount:signed});
+      saveAccounts('fx', accs);
+    }
+  }
+
+  // Registrar el movimiento SIEMPRE (ingreso o egreso)
+  const list = getExpenses();
+  list.unshift({
+    id: Date.now(),
+    date: new Date().toISOString(),
+    type: isIncome ? 'income' : 'expense',
+    desc, amount: amountARS,
+    originalAmount: amount,
+    currency: selMovCurrency,
+    cat: isIncome ? 'ingreso' : selMovCat,
+    source: dest,
+    sharedWith
+  });
+  saveExpenses(list);
+
+  closeModal('modal-mov');
+  initWallet(); loadDashboardData();
+  const sym = selMovCurrency==='ars' ? '$' : selMovCurrency==='usd' ? 'US$' : '€';
+  toast('✓ '+(movType==='income'?'Ingreso':'Egreso')+' de '+sym+fmt(amount)+' registrado');
+}
+
+// ── ENTRADA POR VOZ (Web Speech API) ─────────────────────────────────────
+let recognition = null;
+
+function startVoiceInput(prefix){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ toast('Tu navegador no soporta dictado por voz'); return; }
+
+  const micEl = document.getElementById(prefix+'-mic');
+  const ctaEl = document.getElementById(prefix+'-voice-cta');
+  recognition = new SR();
+  recognition.lang = 'es-AR';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  if(ctaEl) ctaEl.classList.add('listening');
+  if(micEl) micEl.textContent = '🔴';
+  toast('🎙️ Escuchando…');
+
+  recognition.onresult = (ev) => {
+    const transcript = ev.results[0][0].transcript;
+    parseVoiceInput(transcript, prefix);
+  };
+  recognition.onerror = (e) => {
+    if(e.error==='not-allowed') toast('Permitile el micrófono a la app');
+    else toast('No se pudo escuchar, probá de nuevo');
+    if(ctaEl) ctaEl.classList.remove('listening');
+    if(micEl) micEl.textContent = '🎙️';
+  };
+  recognition.onend = () => {
+    if(ctaEl) ctaEl.classList.remove('listening');
+    if(micEl) micEl.textContent = '🎙️';
+  };
+
+  recognition.start();
+}
+
+function parseVoiceInput(text, prefix){
+  const original = text;
+  let t = text.toLowerCase();
+  toast('🎙️ "'+original+'"');
+
+  // ── 1. MONEDA ──
+  let currency = 'ars';
+  if(/\b(d[oó]lar|d[oó]lares|usd|verde)\b/.test(t)) currency = 'usd';
+  else if(/\b(euro|euros|eur)\b/.test(t)) currency = 'eur';
+
+  // ── 2. MONTO ──
+  let amount = null;
+  const numMatch = t.match(/\b[\d]+(?:[.,][\d]+)*\b/);
+  if(numMatch){
+    let raw = numMatch[0];
+    // Manejar "15.000" o "15,000" como 15000
+    if(/[.,]\d{3}\b/.test(raw)) raw = raw.replace(/[.,]/g,'');
+    else raw = raw.replace(',', '.');
+    amount = parseFloat(raw);
+    // Multiplicadores hablados
+    const after = t.slice(t.indexOf(numMatch[0])+numMatch[0].length, t.indexOf(numMatch[0])+numMatch[0].length+12);
+    if(/\bmil\b/.test(after)) amount *= 1000;
+    if(/\bmillon|\bmillones/.test(after)) amount *= 1000000;
+    t = t.replace(numMatch[0], ' ');
+  } else {
+    amount = spanishWordsToNumber(t);
+  }
+
+  // ── 3. CUENTA / DESTINO ──
+  let destValue = null;
+  const digitalAccs = getAccounts('digital');
+  const fxAccs      = getAccounts('fx');
+
+  for(const a of digitalAccs){
+    const n = a.name.toLowerCase();
+    if(t.includes(n) || n.split(' ').every(w=>w.length>3 && t.includes(w))){
+      destValue = 'digital:'+a.name; break;
+    }
+  }
+  if(!destValue && currency!=='ars'){
+    for(const a of fxAccs){
+      if(a.currency===currency && t.includes(a.name.toLowerCase())){ destValue = 'fx:'+a.name; break; }
+    }
+  }
+  if(!destValue && /\b(efectivo|cash|mano|billete)\b/.test(t)) destValue = 'cash';
+
+  // ── 4. CATEGORÍA ──
+  const CAT_HINTS = {
+    supermercado: ['supermercado','super','chino','almac[eé]n','verduler[ií]a','carnicer[ií]a','compras'],
+    servicios:    ['luz','gas','agua','internet','tel[eé]fono','cable','servicio','edenor','epe','celular'],
+    fijo:         ['alquiler','expensas','cuota','seguro','impuesto','abono','fijo'],
+    transporte:   ['nafta','combustible','sube','colectivo','taxi','uber','cabify','peaje','estacionamiento','transporte'],
+    salud:        ['farmacia','m[eé]dico','remedio','obra social','prepaga','dentista','salud'],
+    ocio:         ['cine','bar','restaurante','salida','netflix','spotify','juego','ocio','cerveza','helado','caf[eé]'],
+    ropa:         ['ropa','zapatilla','zapatillas','campera','pantal[oó]n','remera','calzado'],
+    'no-necesario':['capricho','no necesario','innecesario','antojo'],
+    compartido:   ['compartido','compartimos','a medias','con jesica'],
+  };
+  let cat = 'otro';
+  for(const [id, words] of Object.entries(CAT_HINTS)){
+    if(words.some(w=>new RegExp('\\b'+w, 'i').test(t))){ cat = id; break; }
+  }
+
+  // ── 5. DESCRIPCIÓN ──
+  let desc = original
+    .replace(/\b[\d]+(?:[.,][\d]+)*\b/g,'')
+    .replace(/\b(mil|millones|mill[oó]n|pesos|peso|d[oó]lares|d[oó]lar|euros|euro|usd|eur)\b/gi,'')
+    .replace(/\b(con|desde|de|en|por|para|a|al|la|el|un|una)\b/gi,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+  if(digitalAccs.length){
+    digitalAccs.forEach(a=>{ desc = desc.replace(new RegExp(a.name,'ig'),''); });
+  }
+  desc = desc.replace(/\s+/g,' ').trim();
+
+  // ── 6. APLICAR A LOS CAMPOS ──
+  if(currency!=='ars') selectMovCurrency(currency);
+  if(amount)  document.getElementById(prefix+'-amount').value = Math.round(amount);
+  if(desc)    document.getElementById(prefix+'-desc').value   = capitalize(desc);
+  if(cat!=='otro' && movType==='expense') selectMovCat(cat);
+  if(destValue){
+    const sel = document.getElementById(prefix+'-dest');
+    if([...sel.options].some(o=>o.value===destValue)) sel.value = destValue;
+  }
+
+  updateMovSummary();
+
+  const missing = [];
+  if(!amount) missing.push('el monto');
+  if(!destValue) missing.push('la cuenta');
+  if(missing.length){
+    toast('Falta '+missing.join(' y ')+' — completalo y confirmá');
+  } else {
+    toast('✓ Listo — revisá y confirmá');
+  }
+}
+
+function spanishWordsToNumber(text){
+  const t = text.toLowerCase();
+  const units = {
+    'un':1,'uno':1,'dos':2,'tres':3,'cuatro':4,'cinco':5,'seis':6,'siete':7,'ocho':8,'nueve':9,
+    'diez':10,'once':11,'doce':12,'trece':13,'catorce':14,'quince':15,'dieciséis':16,'dieciseis':16,
+    'diecisiete':17,'dieciocho':18,'diecinueve':19,'veinte':20,'veinticinco':25,'treinta':30,
+    'cuarenta':40,'cincuenta':50,'sesenta':60,'setenta':70,'ochenta':80,'noventa':90,
+    'cien':100,'ciento':100,'doscientos':200,'trescientos':300,'cuatrocientos':400,'quinientos':500,
+    'seiscientos':600,'setecientos':700,'ochocientos':800,'novecientos':900
+  };
+  let base = null;
+  for(const [w,v] of Object.entries(units)){
+    if(new RegExp('\\b'+w+'\\b').test(t)){ base = base===null ? v : base+v; }
+  }
+  if(base===null) return null;
+  if(/\bmillones?\b|\bmill[oó]n\b/.test(t)) return base*1000000;
+  if(/\bmil\b/.test(t)) return base*1000;
+  return base;
+}
+
+// ── VISIBILIDAD BILLETERA ─────────────────────────────────────────────────
+function applyVisibilityWallet(){
+  document.querySelectorAll('.w-val').forEach(el=>{
+    if(!valuesVisible){
+      el.dataset.real = el.textContent;
+      el.textContent  = '•••••';
+      el.style.letterSpacing = '2px';
+    } else {
+      if(el.dataset.real) el.textContent = el.dataset.real;
+      el.style.letterSpacing = '';
+    }
+  });
+}
+
+// ── Gastos ─────────────────────────────────────────────────────────────────
+const CATS = [
+  {id:'supermercado',  l:'Supermercado', i:'🛒'},
+  {id:'servicios',     l:'Servicios',    i:'💡'},
+  {id:'fijo',          l:'Gasto fijo',   i:'🏠'},
+  {id:'transporte',    l:'Transporte',   i:'🚍'},
+  {id:'salud',         l:'Salud',        i:'🏥'},
+  {id:'ocio',          l:'Ocio',         i:'🎬'},
+  {id:'ropa',          l:'Ropa',         i:'👕'},
+  {id:'no-necesario',  l:'No necesario', i:'🙃'},
+  {id:'compartido',    l:'Compartido con', i:'🤝'},
+  {id:'otro',          l:'Otro',         i:'📦'},
+  {id:'ingreso',       l:'Ingreso',      i:'💰'},
+];
+let selGCat = 'otro';
+
+function initGastos(){
+  buildGFilterSelect();
+  buildGSourceFilter();
+  const spent  = spentThisMonth();
+  const income = incomeThisMonth();
+  const se = document.getElementById('h-spent');
+  const ie = document.getElementById('h-income');
+  if(se){ se.textContent='$'+fmt(spent);  se.dataset.real='$'+fmt(spent); }
+  if(ie){ ie.textContent='$'+fmt(income); ie.dataset.real='$'+fmt(income); }
+  renderExpenseList();
+  if(!valuesVisible) applyVisibilityWallet();
+}
+
+function buildGFilterSelect(){
+  const sel = document.getElementById('g-filter-cat');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">Todas las categorías</option>'
+    + CATS.map(c=>`<option value="${c.id}">${c.i} ${c.l}</option>`).join('');
+}
+
+function buildGSourceFilter(){
+  const sel = document.getElementById('g-filter-src');
+  if(!sel) return;
+  const digitalAccs = getAccounts('digital');
+  sel.innerHTML = '<option value="">Todos los orígenes</option>'
+    + '<option value="cash">💵 Efectivo</option>'
+    + digitalAccs.map(a=>`<option value="digital:${esc(a.name)}">${esc(a.name)}</option>`).join('');
+}
+
+function getExpenses(){ return JSON.parse(localStorage.getItem('nmclb_expenses')||'[]'); }
+function saveExpenses(list){ localStorage.setItem('nmclb_expenses', JSON.stringify(list)); }
+
+function addExpense(){
+  const desc   = document.getElementById('g-desc').value.trim();
+  const amount = parseFloat(document.getElementById('g-amount').value);
+  const source = document.getElementById('g-source').value;
+
+  if(!desc){ toast('Agregá una descripción ✏️'); return; }
+  if(!amount||amount<=0){ toast('Ingresá un monto válido 💸'); return; }
+
+  if(selGCat==='compartido'){
+    askText('¿Con quién compartís este gasto?', 'Ej: Jesica', (sharedWith)=>{
+      finalizeExpense(desc, amount, source, sharedWith);
+    });
+  } else {
+    finalizeExpense(desc, amount, source, null);
+  }
+}
+
+function finalizeExpense(desc, amount, source, sharedWith){
+  const expense = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    desc, amount,
+    cat: selGCat,
+    source,
+    sharedWith,
+  };
+
+  const list = getExpenses();
+  list.unshift(expense);
+  saveExpenses(list);
+
+  // Descontar del bolsillo correspondiente
+  if(source==='cash'){
+    const data = getWalletData();
+    data.cash = Math.max(0, data.cash - amount);
+    data.cashHistory = data.cashHistory||[];
+    data.cashHistory.unshift({date:new Date().toISOString(), desc, amount:-amount});
+    localStorage.setItem('nmclb_wallet_data', JSON.stringify(data));
+  } else if(source.startsWith('digital:')){
+    deductDigital(source.slice(8), amount, desc);
+  }
+
+  // Sumar al acumulado de gastos del mes
+  const currentSpent = parseFloat(localStorage.getItem('nmclb_spent_month')||'0');
+  localStorage.setItem('nmclb_spent_month', String(currentSpent+amount));
+
+  document.getElementById('g-desc').value='';
+  document.getElementById('g-amount').value='';
+
+  renderExpenseList();
+  initWallet();
+  loadDashboardData();
+
+  const catObj = CATS.find(c=>c.id===selGCat);
+  toast(`${catObj.i} $${fmt(amount)} registrado`);
+}
+
+function renderExpenseList(){
+  const list = getExpenses();
+  const fCat = document.getElementById('g-filter-cat')?.value || '';
+  const fSrc = document.getElementById('g-filter-src')?.value || '';
+  let filtered = list;
+  if(fCat) filtered = filtered.filter(e=>e.cat===fCat);
+  if(fSrc) filtered = filtered.filter(e=>e.source===fSrc);
+
+  const el = document.getElementById('g-list');
+  if(!el) return;
+
+  if(!filtered.length){
+    el.innerHTML = '<div class="empty-state" style="border:none;">Sin movimientos registrados 🌱</div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map(e=>renderMovRow(e)).join('');
+  if(!valuesVisible) applyVisibility();
+}
+
+// Fila de movimiento reutilizable (historial y detalle de bolsillo)
+function renderMovRow(e){
+  const isIncome = e.type === 'income';
+  const cat = CATS.find(c=>c.id===e.cat) || CATS.find(c=>c.id==='otro');
+  const srcLabel = e.source==='cash' ? '💵 Efectivo'
+                 : e.source && e.source.startsWith('fx:') ? '💱 '+String(e.source).split(':')[1]
+                 : '📱 '+String(e.source||'').split(':')[1];
+  const sharedTag = e.sharedWith ? `<span class="esrc-tag">🤝 ${esc(e.sharedWith)}</span>` : '';
+  const sym = e.currency && e.currency!=='ars' ? (e.currency==='usd'?'US$':'€') : '$';
+  const shownAmount = e.originalAmount && e.currency!=='ars' ? e.originalAmount : e.amount;
+
+  return `<div class="erow">
+    <div class="eicon ${isIncome?'cat-ingreso':'cat-'+e.cat}">${isIncome?'💰':cat.i}</div>
+    <div class="eleft">
+      <div class="edesc">${esc(e.desc)}</div>
+      <div class="emeta"><span class="esrc-tag">${srcLabel}</span>${sharedTag}<span>${fmtDate(e.date)}</span></div>
+    </div>
+    <div class="eamt val-sensitive ${isIncome?'pos':''}">${isIncome?'+':'-'}${sym}${fmt(shownAmount)}</div>
+    <button class="edel" onclick="openEditMov(${e.id})" title="Editar">✏️</button>
+    <button class="edel" onclick="deleteExpense(${e.id})" title="Eliminar">✕</button>
+  </div>`;
+}
+
+function openEditMov(id){
+  const list = getExpenses();
+  const e = list.find(x=>x.id===id);
+  if(!e){ toast('No se encontró el movimiento'); return; }
+
+  const digitalAccs = getAccounts('digital');
+  const destOptions = '<option value="cash">💵 Efectivo</option>'
+    + digitalAccs.map(a=>`<option value="digital:${esc(a.name)}">${esc(a.name)}</option>`).join('');
+
+  document.getElementById('edit-mov-body').innerHTML = `
+    <div class="field"><label class="label">Descripción</label>
+      <input class="input" id="em-desc" value="${esc(e.desc)}"></div>
+    <div class="field"><label class="label">Monto</label>
+      <div style="position:relative;"><span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--accent-soft);font-weight:700;">$</span>
+      <input class="input" type="number" inputmode="decimal" id="em-amount" value="${e.amount}" style="padding-left:24px;"></div></div>
+    <div class="field"><label class="label">Categoría</label>
+      <div class="cats" id="em-catlist"></div></div>
+    <div class="field"><label class="label">¿De dónde salió?</label>
+      <select class="input select" id="em-dest">${destOptions}</select></div>
+    <div class="stack" style="margin-top:4px;">
+      <button class="btn btn-accent" onclick="saveEditMov(${id})">Guardar cambios</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-edit-mov')">Cancelar</button>
+    </div>`;
+
+  editMovCat = e.cat || 'otro';
+  document.getElementById('em-catlist').innerHTML =
+    CATS.map(c=>`<button type="button" class="cbt ${c.id===editMovCat?'sel':''}" onclick="selectEditCat('${c.id}')">${c.i} ${c.l}</button>`).join('');
+  const destSel = document.getElementById('em-dest');
+  if([...destSel.options].some(o=>o.value===e.source)) destSel.value = e.source;
+
+  document.getElementById('modal-edit-mov').style.display='flex';
+}
+
+let editMovCat = 'otro';
+function selectEditCat(id){
+  editMovCat = id;
+  document.querySelectorAll('#em-catlist .cbt').forEach((b,i)=>b.classList.toggle('sel', CATS[i].id===id));
+}
+
+function saveEditMov(id){
+  const list = getExpenses();
+  const idx = list.findIndex(x=>x.id===id);
+  if(idx<0) return;
+  const old = list[idx];
+
+  const newDesc   = document.getElementById('em-desc').value.trim();
+  const newAmount = parseFloat(document.getElementById('em-amount').value);
+  const newDest   = document.getElementById('em-dest').value;
+  if(!newDesc){ toast('Poné una descripción'); return; }
+  if(!newAmount||newAmount<=0){ toast('Monto inválido'); return; }
+
+  // Revertir el impacto anterior en el bolsillo
+  revertPocketImpact(old);
+  // Aplicar el nuevo impacto
+  applyPocketImpact({...old, desc:newDesc, amount:newAmount, source:newDest});
+
+  list[idx] = {...old, desc:newDesc, amount:newAmount, cat:editMovCat, source:newDest};
+  saveExpenses(list);
+
+  closeModal('modal-edit-mov');
+  renderExpenseList(); initWallet(); initHome();
+  if(currentPocket && document.getElementById('s-pocket-detail').classList.contains('active')) renderPocketBody(currentPocket);
+  toast('✓ Movimiento actualizado');
+}
+
+function revertPocketImpact(e){
+  if(e.source==='cash'){
+    const d = getWalletData(); d.cash += e.amount;
+    localStorage.setItem('nmclb_wallet_data', JSON.stringify(d));
+  } else if(e.source && e.source.startsWith('digital:')){
+    const accs = getAccounts('digital');
+    const i = accs.findIndex(a=>a.name===e.source.slice(8));
+    if(i>=0){ accs[i].total += e.amount; saveAccounts('digital', accs); }
+  }
+}
+
+function applyPocketImpact(e){
+  if(e.source==='cash'){
+    const d = getWalletData(); d.cash = Math.max(0, d.cash - e.amount);
+    d.cashHistory = d.cashHistory||[];
+    d.cashHistory.unshift({date:new Date().toISOString(), desc:e.desc+' (editado)', amount:-e.amount});
+    localStorage.setItem('nmclb_wallet_data', JSON.stringify(d));
+  } else if(e.source && e.source.startsWith('digital:')){
+    const accs = getAccounts('digital');
+    const i = accs.findIndex(a=>a.name===e.source.slice(8));
+    if(i>=0){
+      accs[i].total = Math.max(0, accs[i].total - e.amount);
+      accs[i].history = accs[i].history||[];
+      accs[i].history.unshift({date:new Date().toISOString(), desc:e.desc+' (editado)', amount:-e.amount});
+      saveAccounts('digital', accs);
+    }
+  }
+}
+
+function deleteExpense(id){
+  askConfirm('¿Eliminar este movimiento?', ()=>{
+    const list = getExpenses();
+    const e = list.find(x=>x.id===id);
+    if(e){
+      const isIncome = e.type==='income';
+      // Revertir: si era ingreso, restar; si era egreso, devolver
+      const revert = isIncome ? -e.amount : e.amount;
+
+      if(e.source==='cash'){
+        const d = getWalletData();
+        d.cash = Math.max(0, d.cash + revert);
+        localStorage.setItem('nmclb_wallet_data', JSON.stringify(d));
+      } else if(e.source && e.source.startsWith('digital:')){
+        const accs = getAccounts('digital');
+        const i = accs.findIndex(a=>a.name===e.source.slice(8));
+        if(i>=0){ accs[i].total = Math.max(0, accs[i].total + revert); saveAccounts('digital', accs); }
+      } else if(e.source && e.source.startsWith('fx:')){
+        const accs = getAccounts('fx');
+        const i = accs.findIndex(a=>a.name===e.source.slice(3));
+        if(i>=0){
+          const amt = e.originalAmount || e.amount;
+          accs[i].amount = Math.max(0, accs[i].amount + (isIncome ? -amt : amt));
+          saveAccounts('fx', accs);
+        }
+      }
+
+    }
+
+    saveExpenses(list.filter(x=>x.id!==id));
+    renderExpenseList();
+    initWallet();
+    initHome();
+    if(typeof initGastos==='function' && document.getElementById('s-gastos').classList.contains('active')) initGastos();
+    if(currentPocket && document.getElementById('s-pocket-detail').classList.contains('active')) renderPocketBody(currentPocket);
+    toast('Movimiento eliminado');
+  });
+}
+
+function exportExpensesCSV(){
+  const list = getExpenses();
+  if(!list.length){ toast('Sin datos para exportar','#f7a26a'); return; }
+  const rows = [['Fecha','Descripción','Categoría','Origen','Compartido con','Monto']];
+  list.forEach(e=>{
+    const cat = CATS.find(c=>c.id===e.cat)?.l || e.cat;
+    const src = e.source==='cash' ? 'Efectivo' : (e.source||'').split(':')[1] || '';
+    rows.push([fmtDateFull(e.date), e.desc, cat, src, e.sharedWith||'', e.amount]);
+  });
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='gastos_nmclb.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ CSV descargado!');
+}
+
+
+// ── Estado global ────────────────────────────────────────────────────────
+let valuesVisible = true;
+
+// ── Helpers base ─────────────────────────────────────────────────────────
+function fmt(n){
+  const num = Number(n);
+  if(isNaN(num)) return '0';
+  return num.toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0});
+}
+function fmtDate(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return '';
+  return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
+}
+function fmtDateFull(iso){
+  const d = new Date(iso);
+  if(isNaN(d)) return '';
+  return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+}
+function capitalize(s){
+  if(!s) return '';
+  return String(s).charAt(0).toUpperCase()+String(s).slice(1);
+}
+function esc(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── Totales del mes derivados de los movimientos reales ──────────────────
+function monthKeyOf(iso){
+  const d = new Date(iso);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+function currentMonthKey(){
+  const n = new Date();
+  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0');
+}
+
+// Suma real de egresos del mes en curso
+function spentThisMonth(){
+  const mk = currentMonthKey();
+  return getExpenses()
+    .filter(e => e.type !== 'income' && monthKeyOf(e.date) === mk)
+    .reduce((s,e) => s + (Number(e.amount)||0), 0);
+}
+
+// Suma real de ingresos del mes en curso
+function incomeThisMonth(){
+  const mk = currentMonthKey();
+  return getExpenses()
+    .filter(e => e.type === 'income' && monthKeyOf(e.date) === mk)
+    .reduce((s,e) => s + (Number(e.amount)||0), 0);
+}
+
+// ── Puente de compatibilidad ─────────────────────────────────────────────
+// Antes existía una pantalla Dashboard; ahora los datos viven en Home.
+function loadDashboardData(){
+  try{ if(typeof initHome === 'function') initHome(); }catch(e){}
+}
+
+function applyVisibility(){
+  try{
+    document.querySelectorAll('.val-sensitive').forEach(el=>{
+      if(!valuesVisible){
+        if(!el.dataset.real) el.dataset.real = el.textContent;
+        el.textContent = '•••••';
+        el.style.letterSpacing = '2px';
+      } else {
+        if(el.dataset.real) el.textContent = el.dataset.real;
+        el.style.letterSpacing = '';
+      }
+    });
+  }catch(e){}
+}
+
+// ── Visibilidad de valores (ojito) ───────────────────────────────────────
+function toggleVisibility(){
+  valuesVisible = !valuesVisible;
+  const icon = valuesVisible ? '👁' : '🙈';
+  ['eye-btn','eye-btn-w','eye-btn-home'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = icon;
+  });
+  applyVisibility();
+  applyVisibilityWallet();
+}
+
+// ── Instalación PWA ──────────────────────────────────────────────────────
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('install-btn');
+  if(btn) btn.style.display = 'flex';
+});
+
+function installPWA(){
+  if(!deferredPrompt){
+    toast('Usá el menú del navegador → "Instalar app"');
+    return;
+  }
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(()=>{
+    deferredPrompt = null;
+    const btn = document.getElementById('install-btn');
+    if(btn) btn.style.display='none';
+  });
+}
+
+// ── COMPARTIDO CONMIGO ────────────────────────────────────────────────────
+// Modelo: cada gasto compartido tiene sharedWith (persona) y quien lo pagó (yo, por defecto).
+// El balance con cada persona = (lo que puse yo) - (lo que puso la otra) - (lo ya saldado)
+
+function getSettlements(){ return JSON.parse(localStorage.getItem('nmclb_settlements')||'[]'); }
+function saveSettlements(l){ localStorage.setItem('nmclb_settlements', JSON.stringify(l)); }
+
+// Devuelve un mapa { persona: {miAporte, suAporte, saldado, movimientos[]} }
+function computeSharedBalances(){
+  const all = getExpenses().filter(e=>e.sharedWith);
+  const settles = getSettlements();
+  const map = {};
+
+  all.forEach(e=>{
+    const p = e.sharedWith;
+    if(!map[p]) map[p] = {mine:0, theirs:0, settled:0, movs:[]};
+    // paidBy: 'me' (yo pagué) | 'them' (pagó la otra persona)
+    if(e.paidBy === 'them') map[p].theirs += e.amount;
+    else map[p].mine += e.amount;
+    map[p].movs.push(e);
+  });
+
+  settles.forEach(s=>{
+    const p = s.person;
+    if(!map[p]) map[p] = {mine:0, theirs:0, settled:0, movs:[]};
+    // amount > 0 = yo le pagué a la otra persona
+    map[p].settled += s.amount;
+  });
+
+  // Calcular quién debe a quién
+  Object.keys(map).forEach(p=>{
+    const d = map[p];
+    const totalShared = d.mine + d.theirs;
+    const halfEach    = totalShared / 2;
+    // Lo que la otra persona me debe (si puse de más), menos lo que ya me saldó
+    d.rawBalance = d.mine - halfEach;      // >0: me deben | <0: yo debo
+    d.balance    = d.rawBalance - d.settled;
+    d.totalShared = totalShared;
+    d.halfEach = halfEach;
+  });
+
+  return map;
+}
+
+function renderShared(){
+  const body = document.getElementById('shared-body');
+  if(!body) return;
+  const map = computeSharedBalances();
+  const people = Object.keys(map);
+
+  // Subtítulo en el home
+  const sub = document.getElementById('nt-shared-sub');
+  if(sub) sub.textContent = people.length ? people.length+' persona'+(people.length>1?'s':'') : 'Gastos con otras personas';
+
+  if(!people.length){
+    body.innerHTML = `<div class="empty-state" style="border:none;padding:50px 20px;">
+      🤝<br><br>Todavía no cargaste gastos compartidos.<br>
+      <span style="font-size:12px;">Al registrar un egreso, elegí la categoría <strong>Compartido con</strong> y poné el nombre de la persona.</span>
+    </div>`;
+    return;
+  }
+
+  body.innerHTML = people.map(p=>{
+    const d = map[p];
+    const bal = d.balance;
+    const isEven = Math.abs(bal) < 1;
+    const statusTxt = isEven ? 'Están a mano ✓'
+      : bal > 0 ? `${esc(p)} te debe`
+                : `Le debés a ${esc(p)}`;
+    const statusColor = isEven ? 'var(--green)' : bal > 0 ? 'var(--green)' : 'var(--accent-soft)';
+
+    return `<div class="shared-card" onclick="openSharedDetail('${esc(p)}')">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <div class="shared-avatar">${esc(p).charAt(0).toUpperCase()}</div>
+        <div style="flex:1;">
+          <p style="font-size:16px;font-weight:700;">${esc(p)}</p>
+          <p style="font-size:11px;color:var(--text-dim);">${d.movs.length} gasto${d.movs.length>1?'s':''} compartido${d.movs.length>1?'s':''}</p>
+        </div>
+        <span style="font-size:18px;color:var(--text-faint);">›</span>
+      </div>
+      <div class="shared-balance" style="border-color:${statusColor}33;">
+        <p style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">${statusTxt}</p>
+        <p style="font-size:24px;font-weight:800;color:${statusColor};" class="w-val">${isEven?'$0':'$'+fmt(Math.abs(bal))}</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+        <div class="shared-mini"><p class="sm-label">Puse yo</p><p class="sm-val w-val">$${fmt(d.mine)}</p></div>
+        <div class="shared-mini"><p class="sm-label">Puso ${esc(p)}</p><p class="sm-val w-val">$${fmt(d.theirs)}</p></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  if(!valuesVisible) applyVisibilityWallet();
+}
+
+let currentSharedPerson = null;
+
+function openSharedDetail(person){
+  currentSharedPerson = person;
+  document.getElementById('sd-title').textContent = person;
+  renderSharedDetail();
+  go('s-shared-detail');
+}
+
+function renderSharedDetail(){
+  const p = currentSharedPerson;
+  const body = document.getElementById('shared-detail-body');
+  if(!body || !p) return;
+
+  const map = computeSharedBalances();
+  const d = map[p];
+  if(!d){ body.innerHTML = '<div class="empty-state">Sin datos</div>'; return; }
+
+  const bal = d.balance;
+  const isEven = Math.abs(bal) < 1;
+  const statusTxt = isEven ? 'Están a mano ✓' : bal > 0 ? `${esc(p)} te debe` : `Le debés a ${esc(p)}`;
+  const statusColor = isEven ? 'var(--green)' : bal > 0 ? 'var(--green)' : 'var(--accent-soft)';
+  const settles = getSettlements().filter(s=>s.person===p);
+
+  body.innerHTML = `
+    <div class="total-card" style="min-height:auto;padding:18px 20px;background:${bal>0?'linear-gradient(135deg,#8FE08C,#5DB863)':'var(--grad)'};">
+      <p class="total-card-label">${statusTxt}</p>
+      <div class="total-card-amount w-val" style="font-size:32px;color:${bal>0?'#0C1A24':'#fff'};">${isEven?'$0':'$'+fmt(Math.abs(bal))}</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
+      <div class="shared-mini"><p class="sm-label">Total gastado</p><p class="sm-val w-val">$${fmt(d.totalShared)}</p></div>
+      <div class="shared-mini"><p class="sm-label">Puse yo</p><p class="sm-val w-val" style="color:#7ca8f7;">$${fmt(d.mine)}</p></div>
+      <div class="shared-mini"><p class="sm-label">Puso ${esc(p)}</p><p class="sm-val w-val" style="color:#f77ca8;">$${fmt(d.theirs)}</p></div>
+    </div>
+
+    ${!isEven ? `<button class="btn ${bal<0?'btn-accent':'btn-ghost'}" style="margin-bottom:16px;" onclick="openSettleModal('${esc(p)}')">
+      ${bal<0 ? '💸 Pagarle a '+esc(p) : '✓ Registrar que me pagó'}
+    </button>` : ''}
+
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim);margin-bottom:9px;">Gastos compartidos</p>
+    <div class="lwrap" style="margin-bottom:16px;">
+      ${d.movs.length ? d.movs.map(e=>{
+        const paidByMe = e.paidBy !== 'them';
+        return `<div class="erow">
+          <div class="eicon" style="background:${paidByMe?'rgba(124,168,247,.15)':'rgba(247,124,168,.15)'};">${paidByMe?'👤':'🧑'}</div>
+          <div class="eleft">
+            <div class="edesc">${esc(e.desc)}</div>
+            <div class="emeta"><span class="esrc-tag">${paidByMe?'Pagué yo':'Pagó '+esc(p)}</span><span>${fmtDate(e.date)}</span></div>
+          </div>
+          <div class="eamt val-sensitive">$${fmt(e.amount)}</div>
+          <button class="edel" onclick="togglePaidBy(${e.id})" title="Cambiar quién pagó">🔄</button>
+        </div>`;
+      }).join('') : '<div class="empty-state" style="border:none;">Sin gastos</div>'}
+    </div>
+
+    ${settles.length ? `
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim);margin-bottom:9px;">Pagos entre ustedes</p>
+      <div class="lwrap">
+        ${settles.map((s,i)=>`<div class="erow">
+          <div class="eicon" style="background:rgba(127,201,122,.15);">💸</div>
+          <div class="eleft">
+            <div class="edesc">${s.amount>0?'Le pagué a '+esc(p):esc(p)+' me pagó'}</div>
+            <div class="emeta"><span>${fmtDate(s.date)}</span></div>
+          </div>
+          <div class="eamt pos val-sensitive">$${fmt(Math.abs(s.amount))}</div>
+          <button class="edel" onclick="deleteSettlement(${s.id})">✕</button>
+        </div>`).join('')}
+      </div>` : ''}
+  `;
+
+  if(!valuesVisible) applyVisibilityWallet();
+}
+
+// Cambiar quién pagó un gasto compartido
+function togglePaidBy(id){
+  const list = getExpenses();
+  const i = list.findIndex(e=>e.id===id);
+  if(i<0) return;
+  list[i].paidBy = list[i].paidBy === 'them' ? 'me' : 'them';
+  saveExpenses(list);
+  renderSharedDetail();
+  toast(list[i].paidBy==='them' ? 'Marcado: pagó la otra persona' : 'Marcado: pagaste vos');
+}
+
+// ── SALDAR CUENTA ─────────────────────────────────────────────────────────
+function openSettleModal(person){
+  const map = computeSharedBalances();
+  const d = map[person];
+  const bal = d.balance;
+  const iOwe = bal < 0;
+  const suggested = Math.round(Math.abs(bal));
+
+  document.getElementById('settle-title').textContent = iOwe ? 'Pagarle a '+person : person+' me pagó';
+
+  const digitalAccs = getAccounts('digital');
+  const destOptions = '<option value="cash">💵 Efectivo</option>'
+    + digitalAccs.map(a=>`<option value="digital:${esc(a.name)}">${esc(a.name)}</option>`).join('');
+
+  document.getElementById('settle-body').innerHTML = `
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;line-height:1.5;">
+      ${iOwe ? `Le debés <strong style="color:var(--accent-soft)">$${fmt(suggested)}</strong> a ${esc(person)}.`
+             : `${esc(person)} te debe <strong style="color:var(--green)">$${fmt(suggested)}</strong>.`}
+      Podés saldar todo o una parte.
+    </p>
+    <div class="field">
+      <label class="label">Monto a saldar</label>
+      <div style="position:relative;">
+        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--accent-soft);font-weight:700;">$</span>
+        <input class="input" type="number" inputmode="numeric" id="st-amount" value="${suggested}" style="padding-left:24px;font-weight:700;font-size:18px;">
+      </div>
+    </div>
+    ${iOwe ? `<div class="field">
+      <label class="label">¿De dónde sale el pago?</label>
+      <select class="input select" id="st-source">${destOptions}</select>
+    </div>` : `<div class="field">
+      <label class="label">¿A dónde entra el pago?</label>
+      <select class="input select" id="st-source">${destOptions}</select>
+    </div>`}
+    <div class="stack" style="margin-top:4px;">
+      <button class="btn btn-green" onclick="confirmSettle('${esc(person)}', ${iOwe})">✓ Registrar pago</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-settle')">Cancelar</button>
+    </div>`;
+
+  document.getElementById('modal-settle').style.display='flex';
+}
+
+function confirmSettle(person, iOwe){
+  const amount = parseFloat(document.getElementById('st-amount').value);
+  const source = document.getElementById('st-source').value;
+  if(!amount||amount<=0){ toast('Ingresá un monto válido'); return; }
+
+  // Registrar el saldo (positivo = yo pagué)
+  const settles = getSettlements();
+  settles.unshift({
+    id: Date.now(),
+    date: new Date().toISOString(),
+    person,
+    amount: iOwe ? amount : -amount,
+    source
+  });
+  saveSettlements(settles);
+
+  // Impacto en la billetera
+  const delta = iOwe ? -amount : amount;
+  const desc  = iOwe ? 'Pago a '+person : 'Cobro de '+person;
+
+  if(source==='cash'){
+    const d = getWalletData();
+    d.cash = Math.max(0, d.cash + delta);
+    d.cashHistory = d.cashHistory||[];
+    d.cashHistory.unshift({date:new Date().toISOString(), desc, amount:delta});
+    localStorage.setItem('nmclb_wallet_data', JSON.stringify(d));
+  } else if(source.startsWith('digital:')){
+    const accs = getAccounts('digital');
+    const i = accs.findIndex(a=>a.name===source.slice(8));
+    if(i>=0){
+      accs[i].total = Math.max(0, accs[i].total + delta);
+      accs[i].history = accs[i].history||[];
+      accs[i].history.unshift({date:new Date().toISOString(), desc, amount:delta});
+      saveAccounts('digital', accs);
+    }
+  }
+
+  closeModal('modal-settle');
+  initWallet();
+  renderSharedDetail();
+  renderShared();
+  toast(iOwe ? '✓ Pago registrado' : '✓ Cobro registrado');
+}
+
+function deleteSettlement(id){
+  askConfirm('¿Eliminar este pago?', ()=>{
+    const settles = getSettlements();
+    const s = settles.find(x=>x.id===id);
+    if(s){
+      // Revertir en la billetera
+      const revert = -s.amount;
+      if(s.source==='cash'){
+        const d = getWalletData();
+        d.cash = Math.max(0, d.cash + (s.amount>0 ? s.amount : -Math.abs(s.amount)));
+        localStorage.setItem('nmclb_wallet_data', JSON.stringify(d));
+      } else if(s.source && s.source.startsWith('digital:')){
+        const accs = getAccounts('digital');
+        const i = accs.findIndex(a=>a.name===s.source.slice(8));
+        if(i>=0){ accs[i].total = Math.max(0, accs[i].total + (s.amount>0 ? s.amount : -Math.abs(s.amount))); saveAccounts('digital', accs); }
+      }
+    }
+    saveSettlements(settles.filter(x=>x.id!==id));
+    initWallet();
+    renderSharedDetail();
+    renderShared();
+    toast('Pago eliminado');
+  });
+}
+
+// ── Toast ───────────────────────────────────────────────────────────────
+let toastT;
+function toast(msg){
+  const t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ── Registro del Service Worker ──────────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').then(reg=>{
+      // Buscar actualizaciones al abrir
+      reg.update().catch(()=>{});
+      reg.addEventListener('updatefound', ()=>{
+        const nw = reg.installing;
+        if(!nw) return;
+        nw.addEventListener('statechange', ()=>{
+          if(nw.state === 'installed' && navigator.serviceWorker.controller){
+            showUpdateBanner();
+          }
+        });
+      });
+    }).catch(()=>{});
+  });
+}
+
+// Banner de actualización disponible
+function showUpdateBanner(){
+  if(document.getElementById('update-banner')) return;
+  const b = document.createElement('div');
+  b.id = 'update-banner';
+  b.style.cssText = 'position:absolute;top:0;left:0;right:0;background:var(--grad);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;z-index:300;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.3);';
+  b.innerHTML = `<span style="flex:1;">✨ Hay una versión nueva lista</span>
+    <button onclick="applyUpdate()" style="background:rgba(0,0,0,.22);border:none;color:#fff;border-radius:9px;padding:7px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">Actualizar</button>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0 4px;">×</button>`;
+  document.getElementById('app').appendChild(b);
+}
+
+async function applyUpdate(){
+  if('caches' in window){
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k=>caches.delete(k)));
+  }
+  if('serviceWorker' in navigator){
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r=>r.unregister()));
+  }
+  location.reload(true);
+}
+
+// ── ARRANQUE DE LA APP ───────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', ()=>{
+  try{
+    const bioWrap = document.getElementById('bio-login-wrap');
+    if(bioWrap && localStorage.getItem('nmclb_bioEnabled')==='1'){
+      bioWrap.style.display='block';
+    }
+    bootApp();
+  }catch(err){
+    console.error('Error al iniciar:', err);
+    // Fallback: mostrar bienvenida para que la app nunca quede en blanco
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    const w = document.getElementById('s-welcome');
+    if(w) w.classList.add('active');
+  }
+});
+</script>
+</body>
+</html>
