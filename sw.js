@@ -1,5 +1,5 @@
 // NMCLB Service Worker — Al Toque
-const CACHE = 'nmclb-v6';
+const CACHE = 'nmclb-v7';
 const ASSETS = [
   './',
   './index.html',
@@ -31,7 +31,7 @@ self.addEventListener('fetch', (e) => {
   const url = e.request.url;
 
   // Las llamadas a la API de cotización siempre van a la red
-  if (url.includes('dolarapi.com') || url.includes('firebaseio.com')) {
+  if (url.includes('dolarapi.com') || url.includes('coingecko.com') || url.includes('firebaseio.com')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
