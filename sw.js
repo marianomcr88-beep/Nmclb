@@ -1,5 +1,5 @@
 // NMCLB Service Worker — Al Toque
-const CACHE = 'nmclb-v11';
+const CACHE = 'nmclb-v12';
 const ASSETS = [
   './',
   './index.html',
