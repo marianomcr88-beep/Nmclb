@@ -1,5 +1,5 @@
 // NMCLB Service Worker — Al Toque
-const CACHE = 'nmclb-v17';
+const CACHE = 'nmclb-v18';
 const ASSETS = [
   './',
   './index.html',
@@ -8,7 +8,7 @@ const ASSETS = [
   './icon-512.png',
   './icon-maskable.png'
 ];
-
+ 
 // Instalar: cachear los archivos base
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -17,7 +17,7 @@ self.addEventListener('install', (e) => {
       .then(() => self.skipWaiting())
   );
 });
-
+ 
 // Activar: limpiar caches viejos
 self.addEventListener('activate', (e) => {
   e.waitUntil(
@@ -26,17 +26,17 @@ self.addEventListener('activate', (e) => {
       .then(() => self.clients.claim())
   );
 });
-
+ 
 // Fetch: red primero para APIs, cache primero para el resto
 self.addEventListener('fetch', (e) => {
   const url = e.request.url;
-
+ 
   // Las llamadas a la API de cotización siempre van a la red
   if (url.includes('dolarapi.com') || url.includes('coingecko.com') || url.includes('firebaseio.com')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
-
+ 
   // Resto: cache primero, red como respaldo
   e.respondWith(
     caches.match(e.request).then(cached => {
